@@ -64,6 +64,9 @@ confirmation.**
     running app are supporting evidence.
 16. **DRF routers use `trailing_slash=False`** (see Findings). Frontend API calls
     must stay slash-free to match.
+17. **Repo is public on GitHub** at `https://github.com/Jdingara/POS-EPOS`
+    (`origin`, branch `main`). Chosen public so the link can go straight into job
+    applications.
 
 ---
 
@@ -119,7 +122,7 @@ Things that would waste time if rediscovered from scratch.
 | 1 | **Workflow design** — sale / returns / cash-EOD flows as a diagram | ✅ Done — `docs/01-workflow.md` |
 | 2 | **Product brief (mini-PRD) + click-through prototype** | ✅ Done — `docs/02-product-brief.md`, `mockup/index.html` (prototype is pre-pivot, grocery-flavour) |
 | 3 | **Full-stack apparel app** — React + Django + PostgreSQL, Docker | ✅ Built & verified end-to-end; committed `a1a9f66` on `main` |
-| 3.1 | Alignment & housekeeping — push to GitHub; decide prototype re-skin; README screenshots | ⏳ In progress |
+| 3.1 | Alignment & housekeeping — ✅ pushed to GitHub (`Jdingara/POS-EPOS`, public); ⬜ prototype re-skin decision; ⬜ README screenshots | ⏳ In progress |
 | 4 | **Backlog + roadmap doc** — epics → user stories + acceptance criteria, MoSCoW/RICE, v1/v2/v3 release plan | ⬜ Not started |
 | 5 | **PM interview prep pack** — POS/retail PM question bank + STAR stories built on this project | ⬜ Not started |
 | — | Ongoing — keep the app aligned with the PRD; keep this file current | 🔄 Continuous |
@@ -128,7 +131,7 @@ Things that would waste time if rediscovered from scratch.
 
 ## Current Status
 
-**Last updated: 2026-08-31**
+**Last updated: 2026-09-01**
 
 **Where the project stands:** all three original phases are complete. There is a
 running, verified full-stack apparel POS, plus the workflow diagram, the mini-PRD,
@@ -200,8 +203,8 @@ Two real bugs were found and fixed while testing it (see Findings #10).
   removed it (README screenshots may be wanted later). Started on
   `CompressedManifestStaticFilesStorage`, switched to the non-manifest variant
   because `collectstatic` is strict about missing references.
-- *Committed* — `a1a9f66` on branch `main`, 80 files. The user's personal
-  `Need to Learn.docx` is gitignored. **Not yet pushed to GitHub.**
+- *Committed* — `a1a9f66` (the app) and `f60d980` (the doc system) on branch
+  `main`, 83 files. The user's personal `Need to Learn.docx` is gitignored.
 - *Docs added* — `docs/03-architecture.md` is a learning-oriented walkthrough
   (request lifecycle, data model, the pricing maths, the three flows and where
   their code lives, atomicity/locking, auth, Docker layout, and a table of
@@ -209,7 +212,11 @@ Two real bugs were found and fixed while testing it (see Findings #10).
 
 **This session** also set up the four-file persistent-memory system
 (`CLAUDE.md`, `AGENTS.md`, this file, and a slimmed `README.md`) and trimmed
-`README.md` down to run/usage only, moving all history and rationale here.
+`README.md` down to run/usage only, moving all history and rationale here. Then
+the user created an empty **public** GitHub repo — `https://github.com/Jdingara/POS-EPOS`
+— and both commits were pushed to `origin/main` (`git remote add origin …` +
+`git push -u origin main`; Git Credential Manager handled the sign-in). No CI,
+no branch protection, no release tags yet.
 
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. Data was reset with `down -v` during verification, so
@@ -220,8 +227,9 @@ exist from the smoke tests.
 
 ## Open Decisions
 
-- **GitHub push** — repo name and visibility not chosen. User wants it pushed.
-  Candidate: `gh repo create threadline-pos --private --source=. --push`.
+- **App name mismatch** — the code/docs call the store *THREADLINE*; the GitHub
+  repo is `POS-EPOS`. Cosmetic, but decide whether to align (rename repo, or drop
+  the THREADLINE branding).
 - **Prototype re-skin** — `mockup/index.html` is still grocery-flavour. Decide:
   re-skin it to apparel (variant catalog + exchange flow) so the PRD and the
   prototype tell one story, or leave it frozen as history and rely on the real
