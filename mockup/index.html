@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>POS / EPOS - Click-through Mockup</title>
+<style>
+  :root{
+    --bg:#eef1f4; --panel:#ffffff; --ink:#1b2430; --muted:#6a7480; --line:#e2e6ec;
+    --brand:#2563eb; --brand-d:#1d4ed8; --on-brand:#ffffff;
+    --ok:#15803d; --ok-bg:#dcfce7; --warn:#b45309; --warn-bg:#fef3c7;
+    --bad:#b91c1c; --bad-bg:#fee2e2; --info-bg:#e0edff;
+    --radius:10px; --shadow:0 1px 3px rgba(16,24,40,.10),0 1px 2px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 12px}
+  button:hover{border-color:#c4ccd6}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  input,select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel);color:inherit;width:100%}
+  h1,h2,h3{margin:0}
+  .btn-primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+  .btn-primary:hover{background:var(--brand-d);border-color:var(--brand-d)}
+  .btn-ghost{background:transparent}
+  .btn-danger{background:var(--bad);border-color:var(--bad);color:#fff}
+  .row{display:flex;gap:10px;align-items:center}
+  .grow{flex:1}
+  .muted{color:var(--muted)}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}
+  .pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}
+
+  header.appbar{background:#0f172a;color:#e5e9f0}
+  .appbar-in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .appbar h1{font-size:16px;letter-spacing:.3px}
+  .appbar .demo{font-size:10px;font-weight:700;background:#f59e0b;color:#1b2430;padding:2px 6px;border-radius:4px}
+  .appbar select{width:auto;background:#1e293b;color:#e5e9f0;border-color:#334155}
+  .appbar button{background:#1e293b;color:#e5e9f0;border-color:#334155}
+  .appbar .spacer{flex:1}
+
+  .tabs{max-width:1180px;margin:0 auto;padding:14px 16px 0;display:flex;gap:6px}
+  .tabs button{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:none;background:#e4e8ee}
+  .tabs button.active{background:var(--panel);font-weight:700}
+
+  main{max-width:1180px;margin:0 auto;padding:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .panel h2{font-size:14px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .panel .body{padding:14px}
+
+  .sale-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  @media(max-width:900px){.sale-grid{grid-template-columns:1fr}}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .cat-card{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:4px}
+  .cat-card .nm{font-weight:600;font-size:13px}
+  .cat-card .pr{font-weight:700}
+  .cat-card .st{font-size:11px}
+  .st.low{color:var(--warn)} .st.out{color:var(--bad)}
+
+  table.cart{width:100%;border-collapse:collapse}
+  table.cart th,table.cart td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+  table.cart th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  table.cart td.num,table.cart th.num{text-align:right}
+  .qty{display:inline-flex;align-items:center;gap:6px}
+  .qty button{padding:2px 8px}
+  .lnk{background:none;border:none;color:var(--brand);padding:0;text-decoration:underline}
+
+  .totals{display:grid;grid-template-columns:1fr auto;gap:4px 16px;margin-top:10px}
+  .totals .g{color:var(--muted)}
+  .totals .tot{font-size:18px;font-weight:800;border-top:1px solid var(--line);padding-top:8px;margin-top:4px}
+
+  .pay-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .pay-row button{padding:14px 8px;font-weight:700}
+
+  .lock{position:relative}
+  .lock::after{content:attr(data-lock);position:absolute;inset:0;background:rgba(255,255,255,.86);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-weight:600;color:var(--muted);border-radius:var(--radius)}
+
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;background:#f6f8fa}
+  .chip.click{cursor:pointer}
+  .chip.click:hover{border-color:var(--brand);color:var(--brand)}
+
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+  .kv div:nth-child(odd){color:var(--muted)}
+
+  .cards4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .stat{border:1px solid var(--line);border-radius:8px;padding:10px}
+  .stat .lab{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .stat .val{font-size:18px;font-weight:800;margin-top:2px}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal{background:var(--panel);border-radius:12px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden}
+  .modal.wide{max-width:560px}
+  .modal h3{padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px}
+  .modal .m-body{padding:16px}
+  .modal .m-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+
+  .receipt{font-family:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:#fff;border:1px dashed #c9d1da;border-radius:6px;padding:14px}
+  .receipt hr{border:none;border-top:1px dashed #c9d1da;margin:8px 0}
+  .receipt .r-row{display:flex;justify-content:space-between}
+  .receipt .r-big{font-weight:800;font-size:14px}
+
+  .toast-wrap{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:60}
+  .toast{background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:var(--shadow);font-size:13px}
+  .toast.bad{background:var(--bad)} .toast.ok{background:var(--ok)} .toast.warn{background:var(--warn)}
+
+  .denoms{display:grid;grid-template-columns:auto 90px auto;gap:6px 10px;align-items:center}
+  .denoms .d-tot{text-align:right;font-variant-numeric:tabular-nums}
+
+  .banner{padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:13px}
+  .banner.warn{background:var(--warn-bg);color:var(--warn)}
+  .banner.info{background:var(--info-bg)}
+  .banner.bad{background:var(--bad-bg);color:var(--bad)}
+
+  footer.note{max-width:1180px;margin:6px auto 30px;padding:0 16px;color:var(--muted);font-size:12px}
+
+  #printArea{display:none}
+  @media print{
+    body *{visibility:hidden}
+    #printArea,#printArea *{visibility:visible}
+    #printArea{display:block;position:absolute;left:0;top:0;width:320px;padding:6px}
+  }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="appbar-in">
+    <h1>ACME MART &nbsp;POS</h1><span class="demo">DEMO</span>
+    <div class="spacer"></div>
+    <label class="row" style="gap:6px">
+      <span class="muted" style="font-size:12px">Cashier</span>
+      <select id="cashierSel"></select>
+    </label>
+    <span id="tillPill" class="pill">till</span>
+    <button id="resetBtn" class="btn-ghost">Reset demo data</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="sale" class="active">Sale</button>
+  <button data-tab="returns">Returns</button>
+  <button data-tab="till">Till / Cash</button>
+</nav>
+
+<main id="view"></main>
+
+<footer class="note">
+  Click-through prototype for requirement sign-off. Payments (Card / UPI / cash settlement) are simulated - no real
+  processing. All state lives in your browser via <code>localStorage</code>; "Reset demo data" restores the seed.
+</footer>
+
+<div id="modalRoot"></div>
+<div class="toast-wrap" id="toastRoot"></div>
+<div id="printArea"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ *  helpers
+ * ------------------------------------------------------------------ */
+const KEY = "pos_db_v1";
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const r2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+const money = n => "₹" + r2(n).toFixed(2);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const pad = (n, w=4) => String(n).padStart(w, "0");
+const nowISO = () => new Date().toISOString();
+const ymd = d => { d = d ? new Date(d) : new Date(); return d.getFullYear() + pad(d.getMonth()+1,2) + pad(d.getDate(),2); };
+const fmtDT = iso => new Date(iso).toLocaleString();
+
+function toast(msg, type=""){
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = msg;
+  $("#toastRoot").appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+/* ------------------------------------------------------------------ *
+ *  seed + persistence
+ * ------------------------------------------------------------------ */
+function seed(){
+  const P = (sku, barcode, name, price, taxClass, stock) => ({ sku, barcode, name, price, taxClass, stock });
+  return {
+    settings: {
+      currency: "₹",
+      taxRates: { STD: 0.18, RED: 0.05, ZERO: 0 },
+      returnWindowDays: 30,
+      cashTolerance: 100,
+      cashierLimit: 2000
+    },
+    staff: [
+      { name: "Asha",  role: "Manager" },
+      { name: "Ravi",  role: "Cashier" },
+      { name: "Meena", role: "Cashier" }
+    ],
+    sessionCashier: "Ravi",
+    catalog: [
+      P("SKU-1001", "8901001000017", "Basmati Rice 1kg",        129.00, "RED",  40),
+      P("SKU-1002", "8901001000024", "Toor Dal 1kg",             149.00, "RED",  30),
+      P("SKU-1003", "8901001000031", "Sunflower Oil 1L",         185.00, "RED",  25),
+      P("SKU-1004", "8901001000048", "Whole Wheat Bread",         45.00, "ZERO", 18),
+      P("SKU-1005", "8901001000055", "Full Cream Milk 1L",        68.00, "ZERO", 22),
+      P("SKU-1006", "8901001000062", "Instant Coffee 100g",      299.00, "STD",  15),
+      P("SKU-1007", "8901001000079", "Dark Chocolate 100g",      160.00, "STD",  20),
+      P("SKU-1008", "8901001000086", "Dish Wash Liquid 500ml",   115.00, "STD",  16),
+      P("SKU-1009", "8901001000093", "Toothpaste 150g",           99.00, "STD",  28),
+      P("SKU-1010", "8901001000109", "Shampoo 340ml",            285.00, "STD",  12),
+      P("SKU-1011", "8901001000116", "AA Batteries (4 pack)",    140.00, "STD",   9),
+      P("SKU-1012", "8901001000123", "Steel Water Bottle 1L",    349.00, "STD",   6)
+    ],
+    promos: [
+      { code:"WELCOME15", type:"percent", value:15, minSpend:0,   active:true,  note:"15% off, no minimum" },
+      { code:"SAVE10",    type:"percent", value:10, minSpend:500, active:true,  note:"10% off orders over ₹500" },
+      { code:"FLAT50",    type:"fixed",   value:50, minSpend:300, active:true,  note:"₹50 off orders over ₹300" },
+      { code:"OLD20",     type:"percent", value:20, minSpend:0,   active:false, note:"expired campaign" }
+    ],
+    cart: { lines: [], promo: null },
+    sales: [],
+    refunds: [],
+    till: { open:false, openedAt:null, openedBy:null, float:0, movements:[], history:[] },
+    seq: { inv: 0, ret: 0 }
+  };
+}
+
+let DB;
+try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e){ DB = null; }
+if (!DB) { DB = seed(); }
+function commit(){ localStorage.setItem(KEY, JSON.stringify(DB)); }
+commit();
+
+const rate = taxClass => DB.settings.taxRates[taxClass] ?? 0;
+const product = sku => DB.catalog.find(p => p.sku === sku);
+const currentStaff = () => DB.staff.find(s => s.name === DB.sessionCashier) || DB.staff[0];
+
+/* ------------------------------------------------------------------ *
+ *  money math  (Branch 1: price -> discount -> tax -> total)
+ * ------------------------------------------------------------------ */
+function computeTotals(cart){
+  const lines = cart.lines.map(l => {
+    const p = product(l.sku);
+    const ext = r2(l.price * l.qty);
+    return { sku:l.sku, name:l.name, price:l.price, qty:l.qty,
+             taxClass: p ? p.taxClass : "STD", rate: p ? rate(p.taxClass) : 0,
+             ext, disc:0, taxable:ext, tax:0, lineTotal:ext };
+  });
+  const subtotal = r2(lines.reduce((s,l) => s + l.ext, 0));
+
+  // resolve promo
+  let promo = null, discount = 0, promoMsg = "";
+  if (cart.promo){
+    const pr = DB.promos.find(x => x.code === cart.promo);
+    if (!pr || !pr.active){ promoMsg = "Promo code not valid"; }
+    else if (subtotal < pr.minSpend){ promoMsg = "Needs " + money(pr.minSpend) + " subtotal"; }
+    else {
+      promo = pr;
+      discount = pr.type === "percent" ? r2(subtotal * pr.value / 100) : Math.min(pr.value, subtotal);
+    }
+  }
+
+  // allocate cart discount across lines proportionally, then tax each line
+  let allocated = 0;
+  lines.forEach((l, i) => {
+    if (discount > 0 && subtotal > 0){
+      l.disc = (i === lines.length - 1) ? r2(discount - allocated) : r2(discount * l.ext / subtotal);
+      allocated = r2(allocated + l.disc);
+    }
+    l.taxable  = r2(l.ext - l.disc);
+    l.tax      = r2(l.taxable * l.rate);
+    l.lineTotal = r2(l.taxable + l.tax);
+  });
+
+  const taxByRate = {};
+  lines.forEach(l => {
+    const k = (l.rate * 100).toFixed(0) + "%";
+    taxByRate[k] = taxByRate[k] || { taxable:0, tax:0 };
+    taxByRate[k].taxable = r2(taxByRate[k].taxable + l.taxable);
+    taxByRate[k].tax     = r2(taxByRate[k].tax + l.tax);
+  });
+  const tax   = r2(lines.reduce((s,l) => s + l.tax, 0));
+  const total = r2(subtotal - discount + tax);
+
+  return { lines, subtotal, promo, discount, promoMsg, taxByRate, tax, total };
+}
+
+/* ------------------------------------------------------------------ *
+ *  cart ops
+ * ------------------------------------------------------------------ */
+function addToCart(sku, qty=1){
+  const p = product(sku);
+  if (!p){ toast("Item not found", "bad"); return; }
+  const line = DB.cart.lines.find(l => l.sku === sku);
+  const have = line ? line.qty : 0;
+  if (have + qty > p.stock){ toast(p.name + ": only " + p.stock + " in stock", "warn"); return; }
+  if (line) line.qty += qty;
+  else DB.cart.lines.push({ sku, name:p.name, price:p.price, qty });
+  commit();
+}
+function setQty(sku, qty){
+  const p = product(sku);
+  const line = DB.cart.lines.find(l => l.sku === sku);
+  if (!line) return;
+  qty = Math.max(0, qty);
+  if (qty > p.stock){ toast("Only " + p.stock + " in stock", "warn"); qty = p.stock; }
+  line.qty = qty;
+  if (qty === 0) DB.cart.lines = DB.cart.lines.filter(l => l.sku !== sku);
+  commit();
+}
+function scanLookup(term){
+  term = term.trim(); if (!term) return;
+  const t = term.toLowerCase();
+  let hit = DB.catalog.find(p => p.barcode === term) ||
+            DB.catalog.find(p => p.sku.toLowerCase() === t);
+  if (hit){ addToCart(hit.sku); render(); return; }
+  const matches = DB.catalog.filter(p => p.name.toLowerCase().includes(t));
+  if (matches.length === 1){ addToCart(matches[0].sku); render(); }
+  else if (matches.length === 0){ toast('No match for "' + term + '"', "bad"); }
+  else { saleUI.results = matches.map(m => m.sku); render(); }
+}
+
+/* ------------------------------------------------------------------ *
+ *  view routing
+ * ------------------------------------------------------------------ */
+let tab = "sale";
+const saleUI = { results: null };
+
+function render(){
+  renderAppbar();
+  $$("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  if (tab === "sale")    $("#view").innerHTML = viewSale();
+  if (tab === "returns") $("#view").innerHTML = viewReturns();
+  if (tab === "till")    $("#view").innerHTML = viewTill();
+}
+
+function renderAppbar(){
+  const sel = $("#cashierSel");
+  sel.innerHTML = DB.staff.map(s => `<option ${s.name===DB.sessionCashier?"selected":""}>${esc(s.name)}</option>`).join("");
+  const pill = $("#tillPill");
+  if (DB.till.open){ pill.className = "pill ok"; pill.textContent = "Till OPEN · float " + money(DB.till.float); }
+  else { pill.className = "pill bad"; pill.textContent = "Till CLOSED"; }
+}
+
+/* ------------------------------------------------------------------ *
+ *  SALE view  (Branch 1)
+ * ------------------------------------------------------------------ */
+function viewSale(){
+  const t = computeTotals(DB.cart);
+  const staff = currentStaff();
+
+  const catCards = DB.catalog.map(p => {
+    const stCls = p.stock === 0 ? "out" : p.stock <= 8 ? "low" : "";
+    return `<button class="cat-card" data-add="${p.sku}" ${p.stock===0?"disabled":""}>
+      <span class="nm">${esc(p.name)}</span>
+      <span class="pr">${money(p.price)}</span>
+      <span class="st ${stCls}">${esc(p.taxClass)} · stock ${p.stock}</span>
+    </button>`;
+  }).join("");
+
+  const resultsBlock = saleUI.results ? `
+    <div class="banner info">
+      <strong>Multiple matches</strong> - pick one:
+      <div class="chips" style="margin-top:6px">
+        ${saleUI.results.map(sku => { const p = product(sku);
+          return `<span class="chip click" data-add="${sku}">${esc(p.name)} · ${money(p.price)}</span>`; }).join("")}
+      </div>
+    </div>` : "";
+
+  const cartRows = t.lines.length ? t.lines.map(l => `
+    <tr>
+      <td>${esc(l.name)}<div class="muted" style="font-size:11px">${l.sku} · ${(l.rate*100).toFixed(0)}% tax</div></td>
+      <td class="num">${money(l.price)}</td>
+      <td class="num">
+        <span class="qty">
+          <button data-qtym="${l.sku}">-</button>${l.qty}<button data-qtyp="${l.sku}">+</button>
+        </span>
+      </td>
+      <td class="num">${money(l.ext)}</td>
+      <td class="num"><button class="lnk" data-rm="${l.sku}">remove</button></td>
+    </tr>`).join("")
+    : `<tr><td colspan="5" class="muted" style="padding:18px 6px">Cart is empty - scan or tap a product.</td></tr>`;
+
+  const taxRows = Object.entries(t.taxByRate)
+    .filter(([k,v]) => v.tax > 0)
+    .map(([k,v]) => `<div class="g">Tax @ ${k}</div><div class="num">${money(v.tax)}</div>`).join("");
+
+  const promoChip = t.promo
+    ? `<span class="chip">${esc(t.promo.code)} applied <button class="lnk" data-rmpromo style="margin-left:6px">x</button></span>`
+    : (DB.cart.promo ? `<span class="pill warn">${esc(DB.cart.promo)}: ${esc(t.promoMsg)} <button class="lnk" data-rmpromo>x</button></span>` : "");
+
+  const lockCls  = DB.till.open ? "" : " lock";
+  const lockAttr = DB.till.open ? "" : ` data-lock="Open the till (Till / Cash tab) to start selling"`;
+  const canPay = DB.till.open && t.lines.length > 0;
+
+  return `
+  <div class="sale-grid">
+    <section class="panel">
+      <h2>Scan / search &nbsp;<span class="muted" style="font-weight:400">barcode, SKU or name</span></h2>
+      <div class="body">
+        <div class="row">
+          <input id="scanInput" placeholder="e.g. 8901001000017  /  SKU-1006  /  coffee" autocomplete="off" />
+          <button class="btn-primary" id="scanBtn">Add</button>
+        </div>
+        ${resultsBlock}
+        <h3 style="margin:14px 0 8px;font-size:12px;letter-spacing:.4px;color:var(--muted)">PRODUCT CATALOG</h3>
+        <div class="cat-grid">${catCards}</div>
+      </div>
+    </section>
+
+    <section class="panel${lockCls}"${lockAttr}>
+      <h2>Current sale &nbsp;<span class="muted" style="font-weight:400">Cashier: ${esc(staff.name)} (${staff.role})</span></h2>
+      <div class="body">
+        <table class="cart">
+          <thead><tr><th>Item</th><th class="num">Price</th><th class="num">Qty</th><th class="num">Amount</th><th></th></tr></thead>
+          <tbody>${cartRows}</tbody>
+        </table>
+
+        <div class="row" style="margin-top:12px">
+          <input id="promoInput" placeholder="Promo code (WELCOME15, SAVE10, FLAT50)" value="${esc(DB.cart.promo||"")}" />
+          <button id="promoBtn">Apply</button>
+        </div>
+        <div style="margin-top:8px">${promoChip}</div>
+
+        <div class="totals">
+          <div class="g">Subtotal</div><div class="num">${money(t.subtotal)}</div>
+          ${t.discount ? `<div class="g">Discount${t.promo?` (${esc(t.promo.code)})`:""}</div><div class="num">- ${money(t.discount)}</div>` : ""}
+          <div class="g">Taxable</div><div class="num">${money(t.subtotal - t.discount)}</div>
+          ${taxRows}
+          <div class="g">Tax total</div><div class="num">${money(t.tax)}</div>
+          <div class="tot">TOTAL</div><div class="tot num">${money(t.total)}</div>
+        </div>
+
+        <div class="pay-row">
+          <button data-pay="Cash" ${canPay?"":"disabled"}>Cash</button>
+          <button data-pay="Card" ${canPay?"":"disabled"}>Card</button>
+          <button data-pay="UPI"  ${canPay?"":"disabled"}>UPI</button>
+        </div>
+        <div class="row" style="margin-top:8px;justify-content:space-between">
+          <button class="btn-ghost" id="voidBtn" ${t.lines.length?"":"disabled"}>Void sale</button>
+          <span class="muted" style="font-size:12px">${t.lines.length} line(s)</span>
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ *
+ *  payment  (Branch 1: process payment -> receipt -> inventory -> ledger)
+ * ------------------------------------------------------------------ */
+function startPayment(method){
+  const t = computeTotals(DB.cart);
+  if (t.lines.length === 0) return;
+
+  if (method === "Cash"){
+    const total = t.total;
+    modal({
+      title: "Cash payment · " + money(total),
+      body: `
+        <div class="kv"><div>Amount due</div><div><strong>${money(total)}</strong></div></div>
+        <label style="display:block;margin:12px 0 4px">Cash tendered</label>
+        <input id="cashIn" type="number" min="0" step="1" value="${Math.ceil(total)}" />
+        <div class="chips" style="margin-top:8px">
+          ${[Math.ceil(total), Math.ceil(total/100)*100, Math.ceil(total/500)*500, 500, 1000, 2000]
+            .filter((v,i,a) => a.indexOf(v)===i)
+            .map(v => `<span class="chip click" data-cash="${v}">${money(v)}</span>`).join("")}
+        </div>
+        <div class="kv" style="margin-top:12px"><div>Change due</div><div id="changeOut"><strong>${money(0)}</strong></div></div>`,
+      confirm: "Take payment",
+      onMount(root){
+        const inp = $("#cashIn", root), out = $("#changeOut", root);
+        const upd = () => { const c = parseFloat(inp.value||0) - total; out.innerHTML = "<strong>" + money(Math.max(0,c)) + "</strong>"; };
+        inp.addEventListener("input", upd);
+        root.querySelectorAll("[data-cash]").forEach(c => c.addEventListener("click", () => { inp.value = c.dataset.cash; upd(); }));
+        upd();
+      },
+      onConfirm(root){
+        const got = parseFloat($("#cashIn", root).value || 0);
+        if (got < total){ toast("Insufficient cash tendered", "bad"); return false; }
+        finaliseSale("Cash", t, { cashReceived: r2(got), change: r2(got - total) });
+        return false; // finaliseSale already replaced the modal with the receipt
+      }
+    });
+    return;
+  }
+
+  if (method === "Card"){
+    modal({
+      title: "Card payment · " + money(t.total),
+      body: `<div class="banner info">Insert / tap card on the terminal.</div>
+             <p class="muted">Simulate the terminal response:</p>`,
+      customFoot: `
+        <button data-res="decline" class="btn-danger">Declined</button>
+        <button data-res="approve" class="btn-primary">Approved</button>`,
+      onFoot(res, close){
+        if (res === "approve"){ close(); finaliseSale("Card", t, { authCode: "A" + pad(Math.floor(Math.random()*1e6),6) }); }
+        else { close(); toast("Card declined - try another method (Branch 1: decline handling)", "warn"); }
+      }
+    });
+    return;
+  }
+
+  if (method === "UPI"){
+    modal({
+      title: "UPI payment · " + money(t.total),
+      body: `<div style="text-align:center">
+               <div style="width:150px;height:150px;margin:6px auto;border:1px solid var(--line);border-radius:8px;
+                    background:repeating-conic-gradient(#0f172a 0 25%, #fff 0 50%) 0/16px 16px"></div>
+               <p class="muted">Customer scans with any UPI app · <code>acmemart@upi</code></p>
+             </div>`,
+      customFoot: `
+        <button data-res="fail" class="btn-danger">Failed / timeout</button>
+        <button data-res="paid" class="btn-primary">Payment received</button>`,
+      onFoot(res, close){
+        if (res === "paid"){ close(); finaliseSale("UPI", t, { rrn: pad(Math.floor(Math.random()*1e12),12) }); }
+        else { close(); toast("UPI not confirmed - ask customer to retry", "warn"); }
+      }
+    });
+  }
+}
+
+function finaliseSale(tender, t, extra){
+  DB.seq.inv += 1;
+  const receiptNo = "INV-" + ymd() + "-" + pad(DB.seq.inv);
+  const sale = {
+    id: "s" + Date.now(), receiptNo, ts: nowISO(),
+    cashier: DB.sessionCashier, tender,
+    lines: t.lines.map(l => ({ ...l, returnedQty: 0 })),
+    subtotal: t.subtotal, discount: t.discount,
+    promoCode: t.promo ? t.promo.code : null,
+    tax: t.tax, total: t.total,
+    payment: extra || {}, status: "completed"
+  };
+  DB.sales.push(sale);
+
+  // decrement inventory
+  sale.lines.forEach(l => { const p = product(l.sku); if (p) p.stock = Math.max(0, p.stock - l.qty); });
+
+  // till: cash in
+  if (tender === "Cash" && DB.till.open){
+    DB.till.movements.push({ type:"CASH_SALE", amount: sale.total, ts: sale.ts, ref: receiptNo, note:"" });
+  }
+
+  DB.cart = { lines: [], promo: null };
+  saleUI.results = null;
+  commit();
+  render();
+  showReceipt(sale);
+  toast("Sale " + receiptNo + " completed", "ok");
+}
+
+function receiptHTML(sale){
+  const changeRow = sale.payment.change != null
+    ? `<div class="r-row"><span>Cash tendered</span><span>${money(sale.payment.cashReceived)}</span></div>
+       <div class="r-row"><span>Change</span><span>${money(sale.payment.change)}</span></div>` : "";
+  const auth = sale.payment.authCode ? `<div class="r-row"><span>Auth</span><span>${sale.payment.authCode}</span></div>`
+             : sale.payment.rrn ? `<div class="r-row"><span>UPI RRN</span><span>${sale.payment.rrn}</span></div>` : "";
+  return `<div class="receipt">
+    <div style="text-align:center">
+      <div class="r-big">ACME MART</div>
+      <div>Single-store retail · GSTIN 22ABCDE0000A1Z5</div>
+      <div>${fmtDT(sale.ts)}</div>
+    </div><hr/>
+    <div class="r-row"><span>Receipt</span><span>${sale.receiptNo}</span></div>
+    <div class="r-row"><span>Cashier</span><span>${esc(sale.cashier)}</span></div><hr/>
+    ${sale.lines.map(l => `
+      <div class="r-row"><span>${esc(l.name)}</span><span>${money(l.ext)}</span></div>
+      <div class="r-row muted"><span>&nbsp;&nbsp;${l.qty} x ${money(l.price)}${l.disc?"  (-"+money(l.disc)+")":""}</span><span>${(l.rate*100).toFixed(0)}%</span></div>
+    `).join("")}<hr/>
+    <div class="r-row"><span>Subtotal</span><span>${money(sale.subtotal)}</span></div>
+    ${sale.discount?`<div class="r-row"><span>Discount ${sale.promoCode?"("+sale.promoCode+")":""}</span><span>- ${money(sale.discount)}</span></div>`:""}
+    <div class="r-row"><span>Tax</span><span>${money(sale.tax)}</span></div>
+    <div class="r-row r-big"><span>TOTAL</span><span>${money(sale.total)}</span></div><hr/>
+    <div class="r-row"><span>Paid via</span><span>${sale.tender}</span></div>
+    ${changeRow}${auth}<hr/>
+    <div style="text-align:center">Return within ${DB.settings.returnWindowDays} days with this receipt</div>
+  </div>`;
+}
+
+function showReceipt(sale){
+  modal({
+    title: "Receipt preview",
+    body: receiptHTML(sale),
+    customFoot: `<button data-res="print">Print</button><button data-res="done" class="btn-primary">New sale</button>`,
+    onFoot(res, close){
+      if (res === "print"){ printNode(receiptHTML(sale)); }
+      else close();
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ *  RETURNS view  (Branch 2)
+ * ------------------------------------------------------------------ */
+const retUI = { sale: null, lines: {}, override: false, approver: false };
+
+function viewReturns(){
+  const recent = DB.sales.slice(-6).reverse();
+  const chips = recent.length
+    ? recent.map(s => `<span class="chip click" data-findret="${s.receiptNo}">${s.receiptNo} · ${money(s.total)}</span>`).join("")
+    : `<span class="muted">No sales yet</span>`;
+
+  let detail = `<p class="muted">Enter a receipt number to look up the original sale.</p>`;
+  const s = retUI.sale;
+  if (s){
+    const days = Math.floor((Date.now() - new Date(s.ts)) / 86400000);
+    const outWindow = days > DB.settings.returnWindowDays;
+    let refundTotal = 0;
+    const rows = s.lines.map((l, i) => {
+      const maxQ = l.qty - (l.returnedQty || 0);
+      const sel = retUI.lines[i] || { qty:0, cond:"resaleable" };
+      const lineRefund = maxQ > 0 ? r2(l.lineTotal * (sel.qty / l.qty)) : 0;
+      refundTotal = r2(refundTotal + lineRefund);
+      return `<tr>
+        <td>${esc(l.name)}<div class="muted" style="font-size:11px">${l.sku}</div></td>
+        <td class="num">${money(l.lineTotal)}</td>
+        <td class="num">${l.qty}</td>
+        <td class="num">${l.returnedQty||0}</td>
+        <td class="num">
+          <input type="number" style="width:70px" min="0" max="${maxQ}" value="${sel.qty}"
+                 data-retqty="${i}" ${maxQ===0?"disabled":""}/>
+        </td>
+        <td>
+          <select data-retcond="${i}" ${sel.qty>0?"":"disabled"}>
+            <option value="resaleable" ${sel.cond==="resaleable"?"selected":""}>Resaleable - restock</option>
+            <option value="damaged" ${sel.cond==="damaged"?"selected":""}>Damaged - write off</option>
+          </select>
+        </td>
+        <td class="num">${money(lineRefund)}</td>
+      </tr>`;
+    }).join("");
+
+    const staff = currentStaff();
+    const needsApprv = refundTotal > DB.settings.cashierLimit && staff.role !== "Manager";
+    const fullyDone = s.lines.every(l => (l.returnedQty||0) >= l.qty);
+
+    detail = `
+      <div class="kv" style="margin-bottom:10px">
+        <div>Receipt</div><div><strong>${s.receiptNo}</strong></div>
+        <div>Sold</div><div>${fmtDT(s.ts)} (${days} day(s) ago)</div>
+        <div>Original total</div><div>${money(s.total)} via ${s.tender}</div>
+        <div>Status</div><div>${s.status}</div>
+      </div>
+      ${fullyDone ? `<div class="banner bad">All items on this receipt have already been returned.</div>` : ""}
+      ${outWindow ? `<div class="banner warn">
+          Outside the ${DB.settings.returnWindowDays}-day window.
+          <label class="row" style="margin-top:6px;gap:6px"><input type="checkbox" style="width:auto" id="ovr" ${retUI.override?"checked":""}/> Manager override - proceed as store credit</label>
+        </div>` : ""}
+      <table class="cart">
+        <thead><tr><th>Item</th><th class="num">Line total</th><th class="num">Sold</th><th class="num">Returned</th><th class="num">Return qty</th><th>Condition</th><th class="num">Refund</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="totals" style="grid-template-columns:1fr auto">
+        <div class="tot">REFUND</div><div class="tot num">${money(refundTotal)}</div>
+      </div>
+      <div class="banner info" style="margin-top:10px">
+        Refund method: <strong>${s.tender === "Cash" ? "Cash from till" : s.tender === "Card" ? "Reversal to original card" : "UPI reversal to original VPA"}</strong>
+        (matches original tender).
+      </div>
+      ${needsApprv ? `<div class="banner warn">
+          Refund exceeds cashier limit (${money(DB.settings.cashierLimit)}).
+          <label class="row" style="margin-top:6px;gap:6px"><input type="checkbox" style="width:auto" id="aprv" ${retUI.approver?"checked":""}/> Shift manager approves this refund</label>
+        </div>` : ""}
+      <div class="row" style="justify-content:flex-end;margin-top:8px">
+        <button class="btn-ghost" id="retClear">Clear</button>
+        <button class="btn-primary" id="retProcess" ${refundTotal>0 && !fullyDone && (!outWindow||retUI.override) && (!needsApprv||retUI.approver) ? "" : "disabled"}>
+          Process refund
+        </button>
+      </div>`;
+  }
+
+  return `
+  <section class="panel">
+    <h2>Returns &amp; refunds &nbsp;<span class="muted" style="font-weight:400">Branch 2</span></h2>
+    <div class="body">
+      <div class="row">
+        <input id="retNo" placeholder="Receipt number, e.g. INV-${ymd()}-0001" value="${esc(retUI.sale?retUI.sale.receiptNo:"")}"/>
+        <button class="btn-primary" id="retFind">Find</button>
+      </div>
+      <div class="chips" style="margin-top:10px"><span class="muted" style="font-size:12px">Recent:</span> ${chips}</div>
+      <hr style="border:none;border-top:1px solid var(--line);margin:14px 0"/>
+      ${detail}
+    </div>
+  </section>`;
+}
+
+function processRefund(){
+  const s = retUI.sale;
+  const staff = currentStaff();
+  DB.seq.ret += 1;
+  const retNo = "RET-" + ymd() + "-" + pad(DB.seq.ret);
+  const items = [];
+  let amount = 0;
+
+  s.lines.forEach((l, i) => {
+    const sel = retUI.lines[i];
+    if (!sel || sel.qty <= 0) return;
+    const q = Math.min(sel.qty, l.qty - (l.returnedQty || 0));
+    if (q <= 0) return;
+    const lineRefund = r2(l.lineTotal * (q / l.qty));
+    amount = r2(amount + lineRefund);
+    l.returnedQty = (l.returnedQty || 0) + q;
+    items.push({ sku:l.sku, name:l.name, qty:q, amount:lineRefund, condition: sel.cond });
+
+    const p = product(l.sku);
+    if (p && sel.cond === "resaleable") p.stock += q;   // Branch 2: increment inventory
+    // damaged -> write-off, no restock
+  });
+
+  if (!items.length){ toast("Select at least one item and quantity", "bad"); return; }
+
+  s.status = s.lines.every(l => (l.returnedQty||0) >= l.qty) ? "refunded" : "partially-refunded";
+
+  const refund = {
+    id: "r" + Date.now(), retNo, ts: nowISO(), receiptNo: s.receiptNo,
+    tender: s.tender, amount, items, cashier: DB.sessionCashier,
+    approvedBy: (amount > DB.settings.cashierLimit)
+      ? (staff.role === "Manager" ? staff.name : "Manager (override)") : null
+  };
+  DB.refunds.push(refund);
+
+  if (s.tender === "Cash" && DB.till.open){
+    DB.till.movements.push({ type:"CASH_REFUND", amount, ts: refund.ts, ref: retNo, note: s.receiptNo });
+  }
+
+  commit();
+  retUI.sale = null; retUI.lines = {}; retUI.override = false; retUI.approver = false;
+  render();
+  toast("Refund " + retNo + " processed · " + money(amount), "ok");
+
+  modal({
+    title: "Refund receipt",
+    body: `<div class="receipt">
+      <div style="text-align:center"><div class="r-big">ACME MART - REFUND</div><div>${fmtDT(refund.ts)}</div></div><hr/>
+      <div class="r-row"><span>Refund</span><span>${refund.retNo}</span></div>
+      <div class="r-row"><span>Against</span><span>${refund.receiptNo}</span></div>
+      <div class="r-row"><span>Cashier</span><span>${esc(refund.cashier)}</span></div>
+      ${refund.approvedBy?`<div class="r-row"><span>Approved by</span><span>${esc(refund.approvedBy)}</span></div>`:""}<hr/>
+      ${items.map(it => `<div class="r-row"><span>${esc(it.name)} x${it.qty}</span><span>${money(it.amount)}</span></div>
+        <div class="r-row muted"><span>&nbsp;&nbsp;${it.condition}</span><span></span></div>`).join("")}<hr/>
+      <div class="r-row r-big"><span>REFUNDED</span><span>${money(refund.amount)}</span></div>
+      <div class="r-row"><span>Method</span><span>${refund.tender}</span></div>
+    </div>`,
+    customFoot: `<button data-res="print">Print</button><button data-res="ok" class="btn-primary">Done</button>`,
+    onFoot(res, close){ if (res === "print") printNode($(".modal .receipt").outerHTML); else close(); }
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ *  TILL view  (Branch 3)
+ * ------------------------------------------------------------------ */
+const NOTES = [2000, 500, 200, 100, 50, 20, 10];
+const countUI = { notes: {}, coins: 0, reason: "", signoff: false, active: false };
+
+function tillExpected(){
+  let x = DB.till.float;
+  DB.till.movements.forEach(m => {
+    if (m.type === "CASH_SALE") x += m.amount;
+    else if (m.type === "CASH_REFUND") x -= m.amount;
+    else if (m.type === "PAID_OUT") x -= m.amount;
+    else if (m.type === "SAFE_DROP") x -= m.amount;
+  });
+  return r2(x);
+}
+function sumBy(type){ return r2(DB.till.movements.filter(m => m.type === type).reduce((s,m) => s + m.amount, 0)); }
+
+function viewTill(){
+  if (!DB.till.open){
+    return `
+    <section class="panel">
+      <h2>Till opening &nbsp;<span class="muted" style="font-weight:400">Branch 3</span></h2>
+      <div class="body" style="max-width:420px">
+        <div class="kv"><div>Cashier</div><div><strong>${esc(DB.sessionCashier)}</strong></div></div>
+        <label style="display:block;margin:12px 0 4px">Starting float</label>
+        <input id="floatIn" type="number" min="0" step="1" value="2000"/>
+        <div class="chips" style="margin-top:8px">
+          ${[1000,1500,2000,2500,3000].map(v => `<span class="chip click" data-float="${v}">${money(v)}</span>`).join("")}
+        </div>
+        <button class="btn-primary" id="openTillBtn" style="margin-top:14px">Open till</button>
+        ${DB.till.history.length ? `<p class="muted" style="margin-top:14px">Last close: ${fmtDT(DB.till.history.at(-1).closedAt)} · variance ${money(DB.till.history.at(-1).variance)}</p>` : ""}
+      </div>
+    </section>`;
+  }
+
+  if (countUI.active){
+    const counted = r2(NOTES.reduce((s,n) => s + n * (parseInt(countUI.notes[n]||0)), 0) + Number(countUI.coins||0));
+    const expected = tillExpected();
+    const variance = r2(counted - expected);
+    const within = Math.abs(variance) <= DB.settings.cashTolerance;
+    return `
+    <section class="panel">
+      <h2>Close till - count &amp; reconcile</h2>
+      <div class="body">
+        <div class="banner info">Count the drawer, then compare with the system figure. Tolerance +/- ${money(DB.settings.cashTolerance)}.</div>
+        <div class="denoms">
+          <strong>Denomination</strong><strong style="text-align:center">Count</strong><strong style="text-align:right">Value</strong>
+          ${NOTES.map(n => `
+            <div>₹${n} notes</div>
+            <input type="number" min="0" value="${countUI.notes[n]||0}" data-note="${n}"/>
+            <div class="d-tot">${money(n * (parseInt(countUI.notes[n]||0)))}</div>`).join("")}
+          <div>Coins / loose</div>
+          <input type="number" min="0" step="0.5" value="${countUI.coins||0}" data-coins/>
+          <div class="d-tot">${money(Number(countUI.coins||0))}</div>
+        </div>
+
+        <div class="cards4" style="margin-top:14px">
+          <div class="stat"><div class="lab">Expected (system)</div><div class="val">${money(expected)}</div></div>
+          <div class="stat"><div class="lab">Counted</div><div class="val">${money(counted)}</div></div>
+          <div class="stat"><div class="lab">Variance</div>
+            <div class="val" style="color:${within?"var(--ok)":"var(--bad)"}">${variance>=0?"+":""}${money(variance)}</div></div>
+        </div>
+
+        ${!within ? `<div class="banner bad" style="margin-top:12px">
+            Variance beyond tolerance - reconciliation required.
+            <textarea id="reason" style="width:100%;margin-top:6px;min-height:56px" placeholder="Explanation / action taken">${esc(countUI.reason)}</textarea>
+            <label class="row" style="margin-top:6px;gap:6px"><input type="checkbox" style="width:auto" id="signoff" ${countUI.signoff?"checked":""}/> Shift manager sign-off</label>
+          </div>` : `<div class="banner info" style="margin-top:12px">Within tolerance - no reconciliation needed.</div>`}
+
+        <div class="row" style="justify-content:flex-end;margin-top:12px">
+          <button class="btn-ghost" id="cancelCount">Back</button>
+          <button class="btn-primary" id="zreportBtn" ${within || (countUI.reason.trim() && countUI.signoff) ? "" : "disabled"}>Generate end-of-day report</button>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // till open dashboard
+  const movRows = DB.till.movements.length
+    ? DB.till.movements.slice().reverse().map(m => `
+        <tr><td>${m.type.replace("_"," ")}</td><td class="num">${(m.type==="CASH_SALE")?"+":"-"} ${money(m.amount)}</td>
+        <td>${esc(m.ref||"")}</td><td class="muted">${new Date(m.ts).toLocaleTimeString()}</td><td>${esc(m.note||"")}</td></tr>`).join("")
+    : `<tr><td colspan="5" class="muted">No cash movements yet.</td></tr>`;
+
+  return `
+  <section class="panel">
+    <h2>Till - cash management &nbsp;<span class="muted" style="font-weight:400">open since ${fmtDT(DB.till.openedAt)} by ${esc(DB.till.openedBy)}</span></h2>
+    <div class="body">
+      <div class="cards4">
+        <div class="stat"><div class="lab">Opening float</div><div class="val">${money(DB.till.float)}</div></div>
+        <div class="stat"><div class="lab">Cash sales</div><div class="val">${money(sumBy("CASH_SALE"))}</div></div>
+        <div class="stat"><div class="lab">Cash refunds</div><div class="val">${money(sumBy("CASH_REFUND"))}</div></div>
+        <div class="stat"><div class="lab">Paid-outs</div><div class="val">${money(sumBy("PAID_OUT"))}</div></div>
+        <div class="stat"><div class="lab">Safe drops</div><div class="val">${money(sumBy("SAFE_DROP"))}</div></div>
+        <div class="stat" style="border-color:var(--brand)"><div class="lab">Expected in drawer</div><div class="val">${money(tillExpected())}</div></div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button data-mv="PAID_OUT">Paid-out / petty cash</button>
+        <button data-mv="SAFE_DROP">Safe drop</button>
+        <span class="grow"></span>
+        <button class="btn-primary" id="closeTillBtn">Close till &amp; count</button>
+      </div>
+
+      <h3 style="margin:16px 0 8px;font-size:12px;letter-spacing:.4px;color:var(--muted)">CASH MOVEMENTS</h3>
+      <table class="cart">
+        <thead><tr><th>Type</th><th class="num">Amount</th><th>Ref</th><th>Time</th><th>Note</th></tr></thead>
+        <tbody>${movRows}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function openZReport(expected, counted, variance){
+  const since = DB.till.openedAt;
+  const sales   = DB.sales.filter(s => s.ts >= since);
+  const refunds = DB.refunds.filter(r => r.ts >= since);
+  const tmix = { Cash:0, Card:0, UPI:0 };
+  sales.forEach(s => tmix[s.tender] = r2(tmix[s.tender] + s.total));
+  refunds.forEach(r => tmix[r.tender] = r2(tmix[r.tender] - r.amount));
+  const gross     = r2(sales.reduce((a,s) => a + s.total, 0));
+  const taxColl   = r2(sales.reduce((a,s) => a + s.tax, 0) - refunds.reduce((a,r) => a + 0, 0));
+  const discGiven = r2(sales.reduce((a,s) => a + s.discount, 0));
+  const retTotal  = r2(refunds.reduce((a,r) => a + r.amount, 0));
+
+  const html = `<div class="receipt">
+    <div style="text-align:center"><div class="r-big">Z-REPORT · END OF DAY</div>
+      <div>ACME MART · ${fmtDT(nowISO())}</div>
+      <div>Cashier ${esc(DB.till.openedBy)} · opened ${fmtDT(since)}</div></div><hr/>
+    <div class="r-row"><span>Transactions</span><span>${sales.length}</span></div>
+    <div class="r-row"><span>Gross sales</span><span>${money(gross)}</span></div>
+    <div class="r-row"><span>Discounts given</span><span>- ${money(discGiven)}</span></div>
+    <div class="r-row"><span>Returns / refunds</span><span>- ${money(retTotal)}</span></div>
+    <div class="r-row"><span>Tax collected</span><span>${money(taxColl)}</span></div><hr/>
+    <div class="r-row"><span>Tender - Cash (net)</span><span>${money(tmix.Cash)}</span></div>
+    <div class="r-row"><span>Tender - Card (net)</span><span>${money(tmix.Card)}</span></div>
+    <div class="r-row"><span>Tender - UPI (net)</span><span>${money(tmix.UPI)}</span></div><hr/>
+    <div class="r-row"><span>Drawer expected</span><span>${money(expected)}</span></div>
+    <div class="r-row"><span>Drawer counted</span><span>${money(counted)}</span></div>
+    <div class="r-row r-big"><span>CASH VARIANCE</span><span>${variance>=0?"+":""}${money(variance)}</span></div>
+  </div>`;
+
+  modal({
+    title: "End-of-day report",
+    wide: true,
+    body: html,
+    customFoot: `<button data-res="print">Print</button><button data-res="finish" class="btn-primary">Finish day &amp; close till</button>`,
+    onFoot(res, close){
+      if (res === "print"){ printNode(html); return; }
+      DB.till.history.push({
+        openedAt: since, closedAt: nowISO(), openedBy: DB.till.openedBy,
+        float: DB.till.float, expected, counted, variance,
+        reason: countUI.reason, signoff: countUI.signoff,
+        gross, discGiven, retTotal, taxColl, tmix, txns: sales.length
+      });
+      DB.till = { open:false, openedAt:null, openedBy:null, float:0, movements:[], history: DB.till.history };
+      countUI.active = false; countUI.notes = {}; countUI.coins = 0; countUI.reason = ""; countUI.signoff = false;
+      commit(); close(); render();
+      toast("Day closed. Till is now CLOSED.", "ok");
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ *  modal + print
+ * ------------------------------------------------------------------ */
+function modal(opts){
+  const root = $("#modalRoot");
+  const foot = opts.customFoot
+    ? opts.customFoot
+    : `<button data-res="cancel" class="btn-ghost">Cancel</button>
+       <button data-res="confirm" class="btn-primary">${esc(opts.confirm || "Confirm")}</button>`;
+  root.innerHTML = `<div class="modal-bg"><div class="modal ${opts.wide?"wide":""}">
+    <h3>${esc(opts.title)}</h3>
+    <div class="m-body">${opts.body}</div>
+    <div class="m-foot">${foot}</div>
+  </div></div>`;
+  const close = () => { root.innerHTML = ""; };
+  const box = $(".modal", root);
+  if (opts.onMount) opts.onMount(box);
+  root.querySelectorAll(".m-foot [data-res]").forEach(b => b.addEventListener("click", () => {
+    const res = b.dataset.res;
+    if (opts.customFoot){ opts.onFoot && opts.onFoot(res, close); return; }
+    if (res === "cancel"){ close(); return; }
+    if (res === "confirm"){ const keep = opts.onConfirm && opts.onConfirm(box); if (keep !== false) close(); }
+  }));
+  $(".modal-bg", root).addEventListener("click", e => { if (e.target.classList.contains("modal-bg")) close(); });
+}
+
+function printNode(html){
+  $("#printArea").innerHTML = html;
+  window.print();
+  setTimeout(() => { $("#printArea").innerHTML = ""; }, 500);
+}
+
+/* ------------------------------------------------------------------ *
+ *  events
+ * ------------------------------------------------------------------ */
+$("#cashierSel").addEventListener("change", e => { DB.sessionCashier = e.target.value; commit(); render(); });
+$("#resetBtn").addEventListener("click", () => {
+  if (!confirm("Reset all demo data back to the seed?")) return;
+  DB = seed(); commit();
+  retUI.sale = null; retUI.lines = {}; countUI.active = false;
+  render(); toast("Demo data reset", "ok");
+});
+$("#tabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-tab]"); if (!b) return;
+  tab = b.dataset.tab; saleUI.results = null; render();
+});
+
+$("#view").addEventListener("click", e => {
+  const el = e.target;
+
+  // ----- SALE -----
+  if (el.closest("[data-add]")){ addToCart(el.closest("[data-add]").dataset.add); saleUI.results = null; render(); return; }
+  if (el.dataset.qtym){ const l = DB.cart.lines.find(x => x.sku === el.dataset.qtym); setQty(el.dataset.qtym, l.qty - 1); render(); return; }
+  if (el.dataset.qtyp){ const l = DB.cart.lines.find(x => x.sku === el.dataset.qtyp); setQty(el.dataset.qtyp, l.qty + 1); render(); return; }
+  if (el.dataset.rm){ DB.cart.lines = DB.cart.lines.filter(x => x.sku !== el.dataset.rm); commit(); render(); return; }
+  if (el.id === "scanBtn"){ scanLookup($("#scanInput").value); $("#scanInput").value = ""; return; }
+  if (el.id === "promoBtn"){ DB.cart.promo = $("#promoInput").value.trim().toUpperCase() || null; commit(); render(); return; }
+  if (el.hasAttribute && el.hasAttribute("data-rmpromo")){ DB.cart.promo = null; commit(); render(); return; }
+  if (el.id === "voidBtn"){ if (confirm("Void the whole sale?")){ DB.cart = { lines:[], promo:null }; commit(); render(); } return; }
+  if (el.dataset.pay){ startPayment(el.dataset.pay); return; }
+
+  // ----- RETURNS -----
+  if (el.id === "retFind" || el.dataset.findret){
+    const no = el.dataset.findret || $("#retNo").value.trim();
+    const s = DB.sales.find(x => x.receiptNo.toLowerCase() === no.toLowerCase());
+    if (!s){ toast("No sale found for " + no, "bad"); return; }
+    retUI.sale = s; retUI.lines = {}; retUI.override = false; retUI.approver = false; render(); return;
+  }
+  if (el.id === "retClear"){ retUI.sale = null; retUI.lines = {}; render(); return; }
+  if (el.id === "retProcess"){ processRefund(); return; }
+
+  // ----- TILL -----
+  if (el.dataset.float){ $("#floatIn").value = el.dataset.float; return; }
+  if (el.id === "openTillBtn"){
+    const f = parseFloat($("#floatIn").value || 0);
+    DB.till = { open:true, openedAt: nowISO(), openedBy: DB.sessionCashier, float: r2(f), movements:[], history: DB.till.history };
+    commit(); render(); toast("Till opened with float " + money(f), "ok"); return;
+  }
+  if (el.dataset.mv){
+    const type = el.dataset.mv;
+    modal({
+      title: type === "PAID_OUT" ? "Paid-out / petty cash" : "Safe drop",
+      body: `<label style="display:block;margin-bottom:4px">Amount</label>
+             <input id="mvAmt" type="number" min="0" step="1" value="0"/>
+             <label style="display:block;margin:10px 0 4px">Note</label>
+             <input id="mvNote" placeholder="reason / reference"/>`,
+      confirm: "Record",
+      onConfirm(box){
+        const amt = parseFloat($("#mvAmt", box).value || 0);
+        if (amt <= 0){ toast("Enter an amount", "bad"); return false; }
+        DB.till.movements.push({ type, amount: r2(amt), ts: nowISO(), ref:"", note: $("#mvNote", box).value });
+        commit(); render(); toast("Recorded", "ok");
+      }
+    });
+    return;
+  }
+  if (el.id === "closeTillBtn"){ countUI.active = true; countUI.notes = {}; countUI.coins = 0; render(); return; }
+  if (el.id === "cancelCount"){ countUI.active = false; render(); return; }
+  if (el.id === "zreportBtn"){
+    const counted = r2(NOTES.reduce((s,n) => s + n * (parseInt(countUI.notes[n]||0)), 0) + Number(countUI.coins||0));
+    const expected = tillExpected();
+    openZReport(expected, counted, r2(counted - expected));
+    return;
+  }
+});
+
+$("#view").addEventListener("input", e => {
+  const el = e.target;
+  if (el.dataset.retqty != null){
+    const i = +el.dataset.retqty;
+    retUI.lines[i] = retUI.lines[i] || { qty:0, cond:"resaleable" };
+    retUI.lines[i].qty = Math.max(0, Math.min(+el.value || 0, +el.max));
+    render();
+    const again = $(`[data-retqty="${i}"]`); if (again){ again.focus(); }
+    return;
+  }
+  if (el.dataset.retcond != null){
+    const i = +el.dataset.retcond;
+    retUI.lines[i] = retUI.lines[i] || { qty:0, cond:"resaleable" };
+    retUI.lines[i].cond = el.value; return;
+  }
+  if (el.id === "ovr"){ retUI.override = el.checked; render(); return; }
+  if (el.id === "aprv"){ retUI.approver = el.checked; render(); return; }
+  if (el.dataset.note != null){
+    const n = el.dataset.note, caret = el.selectionStart;
+    countUI.notes[n] = el.value; render();
+    const a = $(`[data-note="${n}"]`); if (a){ a.focus(); try{ a.setSelectionRange(caret, caret); }catch(_){} }
+    return;
+  }
+  if (el.hasAttribute("data-coins")){
+    const caret = el.selectionStart;
+    countUI.coins = el.value; render();
+    const a = $("[data-coins]"); if (a){ a.focus(); try{ a.setSelectionRange(caret, caret); }catch(_){} }
+    return;
+  }
+  if (el.id === "reason"){ countUI.reason = el.value; const b = $("#zreportBtn"); if (b) b.disabled = !(countUI.reason.trim() && countUI.signoff); return; }
+  if (el.id === "signoff"){ countUI.signoff = el.checked; const b = $("#zreportBtn"); if (b) b.disabled = !(countUI.reason.trim() && countUI.signoff); return; }
+});
+
+$("#view").addEventListener("keydown", e => {
+  if (e.target.id === "scanInput" && e.key === "Enter"){ scanLookup(e.target.value); e.target.value = ""; }
+  if (e.target.id === "promoInput" && e.key === "Enter"){ DB.cart.promo = e.target.value.trim().toUpperCase() || null; commit(); render(); }
+  if (e.target.id === "retNo" && e.key === "Enter"){ $("#retFind").click(); }
+});
+
+/* ------------------------------------------------------------------ *
+ *  go
+ * ------------------------------------------------------------------ */
+render();
+
+})();
+</script>
+</body>
+</html>
