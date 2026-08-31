@@ -1,121 +1,97 @@
-# THREADLINE — Apparel Retail POS / EPOS
+# THREADLINE — Apparel Retail POS
 
-An end-to-end fashion & apparel point-of-sale system, built as a learning +
-portfolio project. It extends a textile/garment **ERP** background into the
-**retail front-of-house**: variant-matrix inventory, seasonal promotions,
-size/colour **exchanges**, and end-of-day till reconciliation.
+> **New here? Read [PROJECT_STATUS.md](PROJECT_STATUS.md) first** — it explains
+> what this project is, the decisions behind it, the roadmap, and the current
+> state. This README is only *how to run it*.
 
-Built AI-assisted, in three phases:
-
-| Phase | Deliverable | Location |
-|---|---|---|
-| 1 — Workflow | The three core process flows as a diagram | [docs/01-workflow.md](docs/01-workflow.md) |
-| 2 — Product & prototype | Mini-PRD + a click-through HTML prototype | [docs/02-product-brief.md](docs/02-product-brief.md) · [mockup/index.html](mockup/index.html) |
-| 3 — Full app | React + Django + PostgreSQL, Dockerised | `backend/` · `frontend/` · `docker-compose.yml` |
-
-A walkthrough of how the app is put together (for building dev knowledge) is in
-[docs/03-architecture.md](docs/03-architecture.md).
+A fashion & apparel point-of-sale system: React frontend, Django REST + PostgreSQL
+backend, delivered with Docker Compose.
 
 ---
 
-## Run it
+## Prerequisites
 
-Requires Docker Desktop.
+- Docker Desktop (Compose v2)
+
+That's all — the backend, database and frontend all run in containers.
+
+---
+
+## Run
 
 ```bash
 docker compose up --build
 ```
 
-Then open **http://localhost:8091**.
+First start takes a minute (image build + migrate + seed). Then open:
+
+**http://localhost:8091**
 
 | Login | Password | Role |
 |---|---|---|
 | `cashier` | `cashier123` | Sales Associate |
 | `manager` | `manager123` | Store Manager (approves overrides) |
-| `admin` | `admin123` | Django admin at http://localhost:8001/admin |
-
-The backend seeds an apparel catalog, staff and promotions automatically on first
-start. **Reset to a clean slate:**
-
-```bash
-docker compose down -v && docker compose up --build
-```
+| `admin`   | `admin123`   | Django admin — http://localhost:8001/admin |
 
 ### Ports
 
-This machine already runs other stacks, so non-default host ports are used:
+| Service | URL |
+|---|---|
+| Frontend (nginx) | http://localhost:8091 |
+| Backend API | http://localhost:8001/api |
+| PostgreSQL | `localhost:5434` (db `apparelpos`, user/pass `apparelpos`) |
 
-| Service | URL | Container |
-|---|---|---|
-| Frontend (nginx) | http://localhost:8091 | `apparelpos-frontend-1` |
-| Backend API (gunicorn) | http://localhost:8001/api | `apparelpos-backend-1` |
-| PostgreSQL | `localhost:5434` | `apparelpos-db-1` |
+The browser only talks to `:8091`; nginx proxies `/api` and `/admin` to the
+backend.
 
-The browser only ever talks to `:8091`; nginx proxies `/api` to the backend.
+### Stop / reset
 
----
-
-## Demo path (5 minutes)
-
-1. **Open the till** — *Till / Cash* tab → *Open till* (float ₹2,000).
-2. **Sell** — *Sell* tab → tap **Oxford Cotton Shirt** → pick a size/colour. The
-   *Brand Day – 15% off Urban Oxford* promotion applies automatically; GST (5% or
-   12% by per-piece value) is backed out of the tax-inclusive MRP. Pay by Cash.
-3. **Exchange** — *Returns & Exchange* → paste the receipt number → set a return
-   qty on one line → add a **different size** as the replacement → an even swap
-   moves **no money**; a dearer/cheaper one collects or refunds the difference.
-4. **Refund** — same screen, switch to *Refund* → goes back to the original
-   tender; posts a reversal, never edits the sale.
-5. **Close the day** — *Till / Cash* → *Close till & count* → enter a blind
-   denomination count → variance vs. the system is shown; outside ±₹100 needs a
-   reason + manager sign-off → **Z-report**.
-6. **Dashboard** — today's transactions, units, discounts, returns, tender mix.
+```bash
+docker compose down          # stop, keep data
+docker compose down -v       # stop and wipe the database
+docker compose up --build    # rebuild and restart (re-seeds if data was wiped)
+```
 
 ---
 
-## Modules (maps to `docs/02-product-brief.md`)
+## Using it (quick walk-through)
 
-| Module | Backend app | Frontend screen |
-|---|---|---|
-| Product catalog & variant inventory | `catalog` | `Sell` (catalog grid + variant picker) |
-| Checkout / transaction processing | `sales` | `Sell` |
-| Discount / promotion engine | `catalog` (`pricing.py`, `Promotion`) | shown live in the cart |
-| Payment processing (mock) | `sales` (`Payment`) | Cash / Card / UPI modals |
-| Returns & exchanges | `sales` (`services.process_return`) | `Returns & Exchange` |
-| Till management & end-of-day | `till` | `Till / Cash` |
-| Sales reporting dashboard | `till` (`DashboardView`) | `Dashboard` |
-
----
-
-## Tech stack
-
-- **Backend** — Django 5, Django REST Framework, PostgreSQL 16, token auth,
-  gunicorn, WhiteNoise. Money stored as integer **paise**.
-- **Frontend** — React 18 + Vite, React Router, plain CSS. No component library.
-- **Delivery** — Docker Compose: `db`, `backend` (migrates + seeds on start),
-  `frontend` (Vite build served by nginx, which also reverse-proxies `/api`).
+1. **Till / Cash** tab → **Open till** (float ₹2,000). Selling is blocked until a
+   till is open.
+2. **Sell** tab → tap a style (e.g. *Oxford Cotton Shirt*) → pick a size/colour.
+   Active promotions apply automatically; GST is shown inclusive. Pay by
+   Cash / Card / UPI (simulated) → receipt.
+3. **Returns & Exchange** tab → paste a receipt number → set a return quantity on
+   a line → either add a different size as a replacement (**Exchange** — even
+   swaps move no money) or switch to **Refund** (goes back to the original
+   tender).
+4. **Till / Cash** → **Close till & count** → enter a blind denomination count →
+   variance vs. the system is shown; outside ±₹100 needs a reason + manager
+   sign-off → **Z-report**.
+5. **Dashboard** → today's transactions, units, discounts, returns, tender mix.
 
 ---
 
-## Local development without Docker
+## Frontend-only development
 
-Frontend only (points at the Dockerised backend on `:8001`):
+Runs the React dev server against the Dockerised backend on `:8001`:
 
 ```bash
 cd frontend
 npm install
-npm run dev        # http://localhost:5173, proxies /api -> localhost:8001
+npm run dev        # http://localhost:5173  (proxies /api -> localhost:8001)
 ```
 
-The backend is Python/PostgreSQL; running it outside Docker means a local venv +
-a Postgres instance. Docker is the supported path.
+The backend is Python + PostgreSQL and is only supported via Docker (there is no
+usable local Python on the dev machine — see PROJECT_STATUS.md).
 
 ---
 
-## Notes / deliberate simplifications
+## Handy commands
 
-See [docs/03-architecture.md](docs/03-architecture.md) for the full list. In
-short: payments are sandboxed (no real PSP), migrations are generated at
-container start for convenience, and a single till session is supported at a
-time. Every one of these is a conscious v1 scope call from the product brief, not
-an oversight.
+```bash
+docker compose ps                        # container status
+docker compose logs -f backend           # backend logs (migrate / seed / gunicorn)
+docker compose exec backend python manage.py seed     # re-run the seed (idempotent)
+docker compose exec db psql -U apparelpos             # psql shell
+```
