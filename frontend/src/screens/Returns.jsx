@@ -187,38 +187,48 @@ export default function Returns() {
 
             <table className="grid">
               <thead>
-                <tr><th>Item</th><th className="num">Paid</th><th className="num">Sold</th><th className="num">Back</th><th className="num">Return qty</th><th>Condition</th><th>Reason</th></tr>
+                <tr><th style={{ width: 28 }}></th><th>Item</th><th className="num">Paid</th><th className="num">Sold</th><th className="num">Back</th><th className="num">Return qty</th><th>Condition</th><th>Reason</th></tr>
               </thead>
               <tbody>
                 {sale.lines.map((l) => {
                   const r = rows[l.id] || {};
+                  const done = l.returnable_qty === 0;          // whole line already returned
+                  const selected = (r.qty || 0) > 0;
                   return (
-                    <tr key={l.id}>
-                      <td>{l.description}</td>
+                    <tr key={l.id} style={done ? { opacity: 0.5 } : undefined}>
+                      <td>
+                        <input type="checkbox" style={{ width: "auto" }}
+                          checked={selected} disabled={done}
+                          onChange={(e) => setRow(l.id, { qty: e.target.checked ? l.returnable_qty : 0 })} />
+                      </td>
+                      <td>
+                        {l.description}
+                        {done && <div className="muted" style={{ fontSize: 11 }}>already returned</div>}
+                      </td>
                       <td className="num">{inr(l.line_total_paise)}</td>
                       <td className="num">{l.qty}</td>
                       <td className="num">{l.returned_qty}</td>
                       <td className="num">
                         <span className="qty" style={{ justifyContent: "flex-end" }}>
-                          <button type="button" disabled={!(r.qty > 0)}
+                          <button type="button" disabled={!selected}
                             onClick={() => setRow(l.id, { qty: (r.qty || 0) - 1 })}>−</button>
                           <input type="number" min={0} max={l.returnable_qty}
-                            style={{ width: 48, textAlign: "center" }}
-                            value={r.qty || 0} disabled={l.returnable_qty === 0}
+                            style={{ width: 44, textAlign: "center" }}
+                            value={r.qty || 0} disabled={done}
                             onChange={(e) => setRow(l.id, { qty: Math.max(0, Math.min(+e.target.value || 0, l.returnable_qty)) })} />
-                          <button type="button" disabled={(r.qty || 0) >= l.returnable_qty}
+                          <button type="button" disabled={done || (r.qty || 0) >= l.returnable_qty}
                             onClick={() => setRow(l.id, { qty: Math.min((r.qty || 0) + 1, l.returnable_qty) })}>+</button>
                         </span>
                       </td>
                       <td>
-                        <select value={r.condition || "RESALEABLE"} disabled={!r.qty}
-                          onChange={(e) => setRow(l.id, { condition: e.target.value })}>
+                        <select value={r.condition || "RESALEABLE"} disabled={done}
+                          onChange={(e) => setRow(l.id, { condition: e.target.value, qty: r.qty || l.returnable_qty })}>
                           {CONDITIONS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
                         </select>
                       </td>
                       <td>
-                        <select value={r.reason || "SIZE"} disabled={!r.qty}
-                          onChange={(e) => setRow(l.id, { reason: e.target.value })}>
+                        <select value={r.reason || "SIZE"} disabled={done}
+                          onChange={(e) => setRow(l.id, { reason: e.target.value, qty: r.qty || l.returnable_qty })}>
                           {REASONS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
                         </select>
                       </td>
@@ -230,7 +240,7 @@ export default function Returns() {
 
             {selectedLines.length === 0 && (
               <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>
-                Use −/+ to set a return quantity — that unlocks the condition &amp; reason for each line.
+                Tick the item(s) being brought back (or just pick a condition / reason). Use −/+ for a partial quantity.
               </div>
             )}
 
