@@ -246,6 +246,12 @@ totals + tender mix), `GET /api/sales/returns` now also lists (was POST-only),
 on). Frontend: Today / 7d / 30d / All range picker, a summary card strip, and
 Sales + Returns tables; clicking a sale opens its receipt (reuses
 `Sell.jsx`'s exported `ReceiptModal`). Verified all three endpoints with curl.
+Follow-up (`e07fd52`): added a **search box** (client-side row filter), a
+**Print** button (`window.print()` + `@media print` rules in `styles.css` that
+hide the app chrome / `.no-print` toolbar and add a "generated" header), and an
+**Excel (CSV)** export button (UTF-8-BOM CSV of the active table, rupee values
+as plain numbers so Excel can sum them). CSV `<a download>` works here because
+this is a normally-served Vite app, not a sandboxed artifact.
 
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
