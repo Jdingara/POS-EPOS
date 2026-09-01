@@ -59,11 +59,13 @@ class VariantViewSet(viewsets.ReadOnlyModelViewSet):
         qs = Variant.objects.select_related("style", "style__category", "style__brand")
         search = self.request.query_params.get("search")
         if search:
+            search = search.strip()
             qs = qs.filter(
-                Q(barcode=search)
+                Q(barcode__icontains=search)        # partial barcode: start / middle / end
                 | Q(style__name__icontains=search)
                 | Q(style__style_code__icontains=search)
                 | Q(color__icontains=search)
+                | Q(size__iexact=search)
             )
         return qs
 

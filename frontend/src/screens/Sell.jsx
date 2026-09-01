@@ -59,11 +59,17 @@ export default function Sell() {
 
   async function doSearch(e) {
     e?.preventDefault();
-    if (!term.trim()) return;
+    const q = term.trim();
+    if (!q) return;
     try {
-      const rows = await api.get("/catalog/variants?search=" + encodeURIComponent(term.trim()));
-      if (rows.length === 0) return toast(`No match for "${term}"`, "bad");
-      if (rows.length === 1) return addVariant(rows[0]);
+      const rows = await api.get("/catalog/variants?search=" + encodeURIComponent(q));
+      if (rows.length === 0) {
+        setResults(null); // clear any stale result list
+        return toast(`No match for "${q}"`, "bad");
+      }
+      // a full barcode scan goes straight to the cart; anything else lists results
+      const exact = rows.find((r) => r.barcode === q);
+      if (exact) return addVariant(exact);
       setResults(rows);
     } catch (ex) {
       toast(ex.message, "bad");
