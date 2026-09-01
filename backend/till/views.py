@@ -85,31 +85,66 @@ class ZReportView(APIView):
 
 
 class DashboardView(APIView):
-    """Simple KPI tiles for today (Sales Reporting Dashboard module)."""
+    """Sales-reporting dashboard for today, with charts data."""
 
     def get(self, request):
+        from datetime import timedelta
+
         from sales.models import ReturnTxn, Sale, TenderMethod
 
         today = timezone.localdate()
-        sales = Sale.objects.filter(created_at__date=today, is_exchange_replacement=False)
+        sales = (
+            Sale.objects
+            .filter(created_at__date=today, is_exchange_replacement=False)
+            .prefetch_related("lines__variant__style__category", "payments")
+        )
         returns = ReturnTxn.objects.filter(created_at__date=today)
 
         tender = {"CASH": 0, "CARD": 0, "UPI": 0}
+        by_hour = {h: {"sales_paise": 0, "txns": 0} for h in range(8, 22)}  # trading hrs
+        by_style, by_cat = {}, {}
+        units = gross = 0
+
         for s in sales:
+            gross += s.total_paise
             for p in s.payments.exclude(method=TenderMethod.STORE_CREDIT):
                 if p.method in tender:
                     tender[p.method] += p.amount_paise
+            h = timezone.localtime(s.created_at).hour
+            b = by_hour.setdefault(h, {"sales_paise": 0, "txns": 0})
+            b["sales_paise"] += s.total_paise
+            b["txns"] += 1
+            for l in s.lines.all():
+                units += l.qty
+                st = l.variant.style
+                d = by_style.setdefault(st.name, {"units": 0, "revenue_paise": 0})
+                d["units"] += l.qty
+                d["revenue_paise"] += l.line_total_paise
+                by_cat[st.category.name] = by_cat.get(st.category.name, 0) + l.line_total_paise
 
-        units = sum(l.qty for s in sales for l in s.lines.all())
-        gross = sum(s.total_paise for s in sales)
+        last_7 = []
+        for i in range(6, -1, -1):
+            d = today - timedelta(days=i)
+            day = Sale.objects.filter(created_at__date=d, is_exchange_replacement=False)
+            last_7.append({
+                "date": d.isoformat(),
+                "gross_paise": sum(x.total_paise for x in day),
+                "txns": day.count(),
+            })
+
+        refunds = sum(r.refund_amount_paise for r in returns)
+        n = sales.count()
+
         return Response({
             "date": today,
-            "transactions": sales.count(),
+            "transactions": n,
             "units_sold": units,
             "gross_sales_paise": gross,
-            "avg_basket_paise": round(gross / sales.count()) if sales.count() else 0,
+            "net_sales_paise": gross - refunds,
+            "avg_basket_paise": round(gross / n) if n else 0,
             "discounts_paise": sum(s.discount_paise for s in sales),
-            "refunds_paise": sum(r.refund_amount_paise for r in returns),
+            "tax_paise": sum(s.tax_paise for s in sales),
+            "refunds_paise": refunds,
             "exchanges": returns.filter(kind=ReturnTxn.Kind.EXCHANGE).count(),
             "returns": returns.filter(kind=ReturnTxn.Kind.REFUND).count(),
             "tender_mix": {
@@ -117,4 +152,14 @@ class DashboardView(APIView):
                 "card_paise": tender["CARD"],
                 "upi_paise": tender["UPI"],
             },
+            "by_hour": [{"hour": h, **by_hour[h]} for h in sorted(by_hour)],
+            "top_styles": sorted(
+                ({"style": k, **v} for k, v in by_style.items()),
+                key=lambda x: x["units"], reverse=True,
+            )[:6],
+            "category_mix": sorted(
+                ({"category": k, "revenue_paise": v} for k, v in by_cat.items()),
+                key=lambda x: x["revenue_paise"], reverse=True,
+            ),
+            "last_7_days": last_7,
         })

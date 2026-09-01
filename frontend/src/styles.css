@@ -116,6 +116,31 @@ table.grid td.num,table.grid th.num{text-align:right}
 .login-wrap h1{font-size:20px;margin-bottom:4px}
 .login-wrap label{display:block;margin:12px 0 4px;font-size:13px}
 
+/* ---- dashboard (inline-SVG charts) ---- */
+.dash{
+  --viz-surface:#ffffff; --viz-ink:#1b2430; --viz-ink-2:#6a7480;
+  --viz-grid:#e7e9ee; --viz-axis:#c3c2b7; --viz-s1-wash:rgba(42,120,214,.12);
+  display:flex; flex-direction:column; gap:16px;
+}
+.dash svg text{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--viz-ink-2)}
+.dash-hero{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;
+  padding:16px 18px;border:1px solid var(--viz-grid);border-radius:12px;
+  background:linear-gradient(180deg,#f5f8fe,#fff)}
+.dash-hero-lab{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--viz-ink-2)}
+.dash-hero-big{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:var(--viz-ink)}
+.dash-delta{font-size:13px;font-weight:700;padding-bottom:4px}
+.dash-delta.up{color:#006300} .dash-delta.down{color:#b91c1c}
+.dash-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px}
+.dash-tile{border:1px solid var(--viz-grid);border-radius:10px;padding:11px 13px;background:var(--viz-surface)}
+.dash-tile .k{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--viz-ink-2)}
+.dash-tile .v{font-size:21px;font-weight:800;margin-top:3px;color:var(--viz-ink)}
+.dash-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.dash-charts{grid-template-columns:1fr}}
+.dash-card{border:1px solid var(--viz-grid);border-radius:12px;padding:14px 16px;background:var(--viz-surface)}
+.dash-card h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--viz-ink-2);margin:0 0 10px;font-weight:700}
+.dash-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--viz-ink-2);margin-top:10px}
+.dash-legend .dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
 /* ---- print (used by the Transactions report) ---- */
 .print-only{display:none}
 @media print{
