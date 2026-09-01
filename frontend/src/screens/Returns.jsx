@@ -103,6 +103,15 @@ export default function Returns() {
     (!needsApproval || approver) &&
     (kind === "REFUND" || exCart.length > 0);
 
+  // when the button is disabled, say why
+  const blocker = !sale ? "" :
+    !till.open ? "Open the till first (Till / Cash tab)" :
+    selectedLines.length === 0 ? "Set a return quantity for at least one item" :
+    outOfWindow && !override ? "Tick the manager override above" :
+    kind === "EXCHANGE" && exCart.length === 0 ? "Add at least one replacement item" :
+    needsApproval && !approver ? "Select an approving manager" :
+    "";
+
   async function process() {
     try {
       const payload = {
@@ -190,9 +199,16 @@ export default function Returns() {
                       <td className="num">{l.qty}</td>
                       <td className="num">{l.returned_qty}</td>
                       <td className="num">
-                        <input type="number" min={0} max={l.returnable_qty} style={{ width: 64 }}
-                          value={r.qty || 0} disabled={l.returnable_qty === 0}
-                          onChange={(e) => setRow(l.id, { qty: Math.max(0, Math.min(+e.target.value || 0, l.returnable_qty)) })} />
+                        <span className="qty" style={{ justifyContent: "flex-end" }}>
+                          <button type="button" disabled={!(r.qty > 0)}
+                            onClick={() => setRow(l.id, { qty: (r.qty || 0) - 1 })}>−</button>
+                          <input type="number" min={0} max={l.returnable_qty}
+                            style={{ width: 48, textAlign: "center" }}
+                            value={r.qty || 0} disabled={l.returnable_qty === 0}
+                            onChange={(e) => setRow(l.id, { qty: Math.max(0, Math.min(+e.target.value || 0, l.returnable_qty)) })} />
+                          <button type="button" disabled={(r.qty || 0) >= l.returnable_qty}
+                            onClick={() => setRow(l.id, { qty: Math.min((r.qty || 0) + 1, l.returnable_qty) })}>+</button>
+                        </span>
                       </td>
                       <td>
                         <select value={r.condition || "RESALEABLE"} disabled={!r.qty}
@@ -211,6 +227,12 @@ export default function Returns() {
                 })}
               </tbody>
             </table>
+
+            {selectedLines.length === 0 && (
+              <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+                Use −/+ to set a return quantity — that unlocks the condition &amp; reason for each line.
+              </div>
+            )}
 
             <div className="kv" style={{ marginTop: 10 }}>
               <div>Value coming back</div><div><b>{inr(returnedValue)}</b></div>
@@ -270,7 +292,8 @@ export default function Returns() {
               </div>
             )}
 
-            <div className="row" style={{ justifyContent: "flex-end", marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "flex-end", marginTop: 12, gap: 10 }}>
+              {blocker && <span className="muted" style={{ fontSize: 12 }}>{blocker}</span>}
               <button className="btn-ghost" onClick={() => setSale(null)}>Clear</button>
               <button className="btn-primary" disabled={!canProcess} onClick={process}>
                 {kind === "EXCHANGE" ? "Process exchange" : "Process refund"}
