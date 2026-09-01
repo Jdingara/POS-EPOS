@@ -218,10 +218,19 @@ the user created an empty **public** GitHub repo — `https://github.com/Jdingar
 `git push -u origin main`; Git Credential Manager handled the sign-in). No CI,
 no branch protection, no release tags yet.
 
+**2026-09-01 session** — restarted the stack (Docker Desktop was not running;
+started it, `docker compose up -d`, all three containers healthy). Fixed a Sell
+search bug the user hit (`28c6fba`): `catalog/views.py` filtered barcodes with an
+exact match, so a partial number like `0046` matched nothing; changed to
+`barcode__icontains` (start/middle/end) plus `size__iexact`. `Sell.jsx` was also
+leaving a stale result list on screen next to the "No match" toast — it now
+clears, and only an exact full-barcode hit auto-adds to the cart (partial hits
+list for the user to pick). Backend rebuilt + verified with curl across
+barcode/name/colour/size searches. Committed and pushed.
+
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
-Up on 8001 / 5434 / 8091. Data was reset with `down -v` during verification, so
-the catalog is fresh seed; a till may be open and one or two API-test sales may
-exist from the smoke tests.
+Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
+session (fresh seed + a couple of smoke-test sales; a till may be open).
 
 ---
 
