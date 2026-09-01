@@ -25,8 +25,9 @@ class VariantSerializer(serializers.ModelSerializer):
         model = Variant
         fields = [
             "id", "style", "style_code", "style_name", "size", "color",
-            "barcode", "unit_price_paise", "stock", "is_sellable", "label",
+            "barcode", "price_paise", "unit_price_paise", "stock", "is_sellable", "label",
         ]
+        extra_kwargs = {"barcode": {"required": False, "allow_blank": True}}
 
 
 class StyleSerializer(serializers.ModelSerializer):

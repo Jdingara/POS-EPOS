@@ -7,9 +7,11 @@ import Returns from "./screens/Returns.jsx";
 import Till from "./screens/Till.jsx";
 import Dashboard from "./screens/Dashboard.jsx";
 import Transactions from "./screens/Transactions.jsx";
+import BackOffice from "./screens/BackOffice.jsx";
 
 export default function App() {
   const { user, ready, till, logout } = usePos();
+  const isManager = user?.role === "manager";
 
   if (!ready) return <main style={{ padding: 40 }} className="muted">Loading…</main>;
   if (!user) return <Login />;
@@ -41,6 +43,7 @@ export default function App() {
         <NavLink to="/till">Till / Cash</NavLink>
         <NavLink to="/transactions">Transactions</NavLink>
         <NavLink to="/dashboard">Dashboard</NavLink>
+        {isManager && <NavLink to="/backoffice">Back Office</NavLink>}
       </nav>
 
       <main>
@@ -50,6 +53,7 @@ export default function App() {
           <Route path="/till" element={<Till />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/backoffice" element={isManager ? <BackOffice /> : <Navigate to="/sell" replace />} />
           <Route path="*" element={<Navigate to="/sell" replace />} />
         </Routes>
       </main>

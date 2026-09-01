@@ -13,6 +13,6 @@ router.register("categories", CategoryViewSet)
 router.register("brands", BrandViewSet)
 router.register("styles", StyleViewSet, basename="style")
 router.register("variants", VariantViewSet, basename="variant")
-router.register("promotions", PromotionViewSet)
+router.register("promotions", PromotionViewSet, basename="promotion")
 
 urlpatterns = router.urls
