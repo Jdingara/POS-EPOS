@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../api.js";
 import { inr } from "../money.js";
 import { usePos } from "../pos-context.jsx";
@@ -29,6 +29,26 @@ const STATUS_LABEL = {
   VOIDED: "voided",
 };
 
+const rupee = (p) => ((p || 0) / 100).toFixed(2); // plain number for spreadsheets
+
+/** Build a UTF-8-BOM CSV (opens straight in Excel) and trigger a download. */
+function downloadCSV(filename, header, rows) {
+  const esc = (c) => {
+    const s = String(c ?? "");
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const body = [header, ...rows].map((r) => r.map(esc).join(",")).join("\r\n");
+  const blob = new Blob(["﻿" + body], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export default function Transactions() {
   const { toast } = usePos();
   const [range, setRange] = useState("7d");
@@ -36,6 +56,7 @@ export default function Transactions() {
   const [sales, setSales] = useState([]);
   const [returns, setReturns] = useState([]);
   const [tab, setTab] = useState("sales");
+  const [query, setQuery] = useState("");
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,15 +85,60 @@ export default function Transactions() {
     }
   }
 
+  const q = query.trim().toLowerCase();
+  const fSales = useMemo(
+    () => (!q ? sales : sales.filter((s) =>
+      [s.number, s.cashier_name, s.tender, STATUS_LABEL[s.status] || s.status]
+        .join(" ").toLowerCase().includes(q))),
+    [sales, q]
+  );
+  const fReturns = useMemo(
+    () => (!q ? returns : returns.filter((r) =>
+      [r.number, r.original_number, r.exchange_number, r.kind, r.cashier_name, r.approved_by_name]
+        .join(" ").toLowerCase().includes(q))),
+    [returns, q]
+  );
+
   const { label } = rangeParams(range);
+
+  function exportCSV() {
+    const stamp = localISO(new Date());
+    if (tab === "sales") {
+      downloadCSV(
+        `transactions-sales-${stamp}.csv`,
+        ["Receipt", "Time", "Cashier", "Units", "Subtotal", "Discount", "GST", "Total", "Paid", "Status", "Units returned"],
+        fSales.map((s) => [
+          s.number, new Date(s.created_at).toLocaleString(), s.cashier_name, s.units,
+          rupee(s.subtotal_paise), rupee(s.discount_paise), rupee(s.tax_paise), rupee(s.total_paise),
+          s.tender, STATUS_LABEL[s.status] || s.status, s.returned_units,
+        ])
+      );
+    } else {
+      downloadCSV(
+        `transactions-returns-${stamp}.csv`,
+        ["Ref", "Time", "Type", "Against", "New sale", "Units", "Value returned", "Refund", "Refund method", "Collected", "Cashier", "Approved by"],
+        fReturns.map((r) => [
+          r.number, new Date(r.created_at).toLocaleString(),
+          r.kind === "EXCHANGE" ? "Exchange" : "Refund",
+          r.original_number, r.exchange_number || "", r.units,
+          rupee(r.returned_value_paise), rupee(r.refund_amount_paise), r.refund_method || "",
+          rupee(r.collect_amount_paise), r.cashier_name, r.approved_by_name || "",
+        ])
+      );
+    }
+  }
 
   return (
     <section className="panel">
       <h2>Transactions <span className="muted" style={{ fontWeight: 400 }}>sales &amp; returns · {label}</span></h2>
       <div className="body">
-        <div className="chips" style={{ marginBottom: 12 }}>
+        <div className="print-only" style={{ marginBottom: 10, fontSize: 12 }}>
+          THREADLINE — transactions report · {label} · generated {new Date().toLocaleString()}
+        </div>
+
+        <div className="chips no-print" style={{ marginBottom: 12 }}>
           {[["today", "Today"], ["7d", "7 days"], ["30d", "30 days"], ["all", "All"]].map(([v, t]) => (
-            <span key={v} className={"chip click" + (range === v ? " " : "")}
+            <span key={v} className="chip click"
               style={range === v ? { borderColor: "var(--brand)", color: "var(--brand)", fontWeight: 700 } : undefined}
               onClick={() => setRange(v)}>{t}</span>
           ))}
@@ -100,14 +166,19 @@ export default function Transactions() {
           </>
         )}
 
-        {/* ---------- list ---------- */}
-        <div className="row" style={{ gap: 6, margin: "16px 0 10px" }}>
+        {/* ---------- toolbar ---------- */}
+        <div className="row wrap no-print" style={{ gap: 8, margin: "16px 0 10px" }}>
           <button className={tab === "sales" ? "btn-primary" : ""} onClick={() => setTab("sales")}>
-            Sales ({sales.length})
+            Sales ({fSales.length})
           </button>
           <button className={tab === "returns" ? "btn-primary" : ""} onClick={() => setTab("returns")}>
-            Returns &amp; exchanges ({returns.length})
+            Returns &amp; exchanges ({fReturns.length})
           </button>
+          <input style={{ maxWidth: 260 }} value={query} onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search receipt / cashier / status…" />
+          <span className="grow" />
+          <button onClick={() => window.print()}>Print</button>
+          <button onClick={exportCSV}>Excel (CSV)</button>
         </div>
 
         {loading && <p className="muted">Loading…</p>}
@@ -123,8 +194,8 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody>
-                {sales.length === 0 && <tr><td colSpan={9} className="muted" style={{ padding: 16 }}>No sales in this period.</td></tr>}
-                {sales.map((s) => (
+                {fSales.length === 0 && <tr><td colSpan={9} className="muted" style={{ padding: 16 }}>{sales.length ? "No sales match the search." : "No sales in this period."}</td></tr>}
+                {fSales.map((s) => (
                   <tr key={s.number} style={{ cursor: "pointer" }} onClick={() => openSale(s.number)}>
                     <td><span className="lnk">{s.number}</span></td>
                     <td className="muted">{new Date(s.created_at).toLocaleString()}</td>
@@ -156,8 +227,8 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody>
-                {returns.length === 0 && <tr><td colSpan={10} className="muted" style={{ padding: 16 }}>No returns or exchanges in this period.</td></tr>}
-                {returns.map((r) => (
+                {fReturns.length === 0 && <tr><td colSpan={10} className="muted" style={{ padding: 16 }}>{returns.length ? "No returns match the search." : "No returns or exchanges in this period."}</td></tr>}
+                {fReturns.map((r) => (
                   <tr key={r.number}>
                     <td>{r.number}</td>
                     <td className="muted">{new Date(r.created_at).toLocaleString()}</td>

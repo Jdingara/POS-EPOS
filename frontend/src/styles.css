@@ -115,3 +115,21 @@ table.grid td.num,table.grid th.num{text-align:right}
 .login-wrap{max-width:360px;margin:8vh auto;padding:24px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
 .login-wrap h1{font-size:20px;margin-bottom:4px}
 .login-wrap label{display:block;margin:12px 0 4px;font-size:13px}
+
+/* ---- print (used by the Transactions report) ---- */
+.print-only{display:none}
+@media print{
+  .appbar,.tabs,.no-print,.toast-wrap{display:none!important}
+  .print-only{display:block}
+  body{background:#fff}
+  main{max-width:none;padding:0}
+  .panel{box-shadow:none;border:none}
+  .panel h2{border:none;padding:0 0 8px}
+  .panel .body{padding:0}
+  .cards{gap:6px}
+  .stat{break-inside:avoid}
+  table.grid{font-size:11px}
+  table.grid th,table.grid td{padding:4px 6px}
+  .lnk{color:#000!important;text-decoration:none!important}
+  @page{margin:12mm}
+}
