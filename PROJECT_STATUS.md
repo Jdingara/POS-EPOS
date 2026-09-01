@@ -283,10 +283,24 @@ purely through the API is immediately sellable with the promo auto-applied.
 (That test data — Northwind brand, Accessories category, "Classic Leather Belt",
 "Belt Launch 10%" — is now in the running DB; `down -v` clears it.)
 
+**Dashboard redesign** (`3056588`). The Dashboard was flat `.stat` cards. Rebuilt
+it with a hero "Net sales today" figure + delta vs the 7-day average, a stat-tile
+strip, and hand-rolled **inline-SVG charts** (no chart library — matches the "no
+component library" rule): 7-day sales trend (area + line), sales-by-hour columns,
+tender-mix stacked bar with legend, and ranked bars for top styles / category
+mix. Colours follow the `dataviz` skill (sequential blue `#2a78d6`; categorical
+blue/orange/aqua for the 3-way tender split, which is the skill's certified
+first-three-slots case). `/api/till/dashboard` was expanded to feed it
+(`by_hour`, `top_styles`, `category_mix`, `last_7_days`, `net_sales_paise`,
+`tax_paise`). Light-only (the app has no theme system — a deliberate single-look
+commit). **Not visually verified this session** — the browser MCP was down, so
+API + bundle deploy are confirmed but the rendered SVG layout needs an eyeball.
+
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
-session (fresh seed + several smoke-test sales incl. INV-20260901-000x; a till
-is open).
+session (fresh seed + several smoke-test sales incl. INV-20260901-000x, plus the
+Back Office test data — Northwind / Accessories / Classic Leather Belt / Belt
+Launch 10%; a till is open).
 
 ---
 
