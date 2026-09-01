@@ -252,6 +252,12 @@ hide the app chrome / `.no-print` toolbar and add a "generated" header), and an
 **Excel (CSV)** export button (UTF-8-BOM CSV of the active table, rupee values
 as plain numbers so Excel can sum them). CSV `<a download>` works here because
 this is a normally-served Vite app, not a sandboxed artifact.
+Then a **full filter bar** (`5b867c0`): date presets + custom From/To pickers
+(drive the fetch), and client-side filters for cashier (`/auth/staff` list),
+paid/refund mode, GST rate (needs the new `tax_rates` field on
+`SaleListSerializer`), units min–max, discount-amount min–max, plus the
+free-text search; a Clear button and per-table filtered-total lines. Print and
+CSV read the filtered rows so they inherit every filter.
 
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
