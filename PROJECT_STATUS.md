@@ -112,6 +112,14 @@ Things that would waste time if rediscovered from scratch.
 11. **Browser-automation note.** The MCP `browser_click` tool is flaky against
     this React SPA; use `browser_evaluate` with a native `.click()` or direct
     navigation for testing. Real user clicks work — it is not an app bug.
+12. **DRF router basename.** A `ModelViewSet` that defines only `get_queryset()`
+    (no class-level `.queryset`) must be registered with an explicit
+    `basename=` or the router raises `AssertionError` at import — this bit
+    `PromotionViewSet` when it gained `get_queryset`.
+13. **Catalog write permission.** `core.permissions.IsManagerOrReadOnly` guards
+    the catalog viewsets: any signed-in user can GET, only `role == manager`
+    can POST/PATCH/DELETE. Associates get 403 on writes (and the Back Office tab
+    is hidden + route-guarded for them).
 
 ---
 
@@ -121,8 +129,9 @@ Things that would waste time if rediscovered from scratch.
 |---|---|---|
 | 1 | **Workflow design** — sale / returns / cash-EOD flows as a diagram | ✅ Done — `docs/01-workflow.md` |
 | 2 | **Product brief (mini-PRD) + click-through prototype** | ✅ Done — `docs/02-product-brief.md`, `mockup/index.html` (prototype is pre-pivot, grocery-flavour) |
-| 3 | **Full-stack apparel app** — React + Django + PostgreSQL, Docker | ✅ Built & verified end-to-end; committed `a1a9f66` on `main` |
-| 3.1 | Alignment & housekeeping — ✅ pushed to GitHub (`Jdingara/POS-EPOS`, public); ⬜ prototype re-skin decision; ⬜ README screenshots | ⏳ In progress |
+| 3 | **Full-stack apparel app** — React + Django + PostgreSQL, Docker | ✅ Built & verified end-to-end; `a1a9f66` on `main` |
+| 3.1 | Alignment & housekeeping — ✅ GitHub (`Jdingara/POS-EPOS`, public); ⬜ prototype re-skin decision; ⬜ README screenshots | ⏳ In progress |
+| 3.2 | Post-launch hardening from live use — Sell partial-barcode search, Returns checkbox UX, **Transactions** page (list + range report + filters + Print/CSV), **Back Office** (in-app catalog/pricing/promo setup, manager-only) | ✅ Done |
 | 4 | **Backlog + roadmap doc** — epics → user stories + acceptance criteria, MoSCoW/RICE, v1/v2/v3 release plan | ⬜ Not started |
 | 5 | **PM interview prep pack** — POS/retail PM question bank + STAR stories built on this project | ⬜ Not started |
 | — | Ongoing — keep the app aligned with the PRD; keep this file current | 🔄 Continuous |
@@ -259,6 +268,21 @@ paid/refund mode, GST rate (needs the new `tax_rates` field on
 free-text search; a Clear button and per-table filtered-total lines. Print and
 CSV read the filtered rows so they inherit every filter.
 
+**Back Office** (`3e5a2dc`). Discussion established that an EPOS needs a product
+master to sell anything (CPQ is *not* relevant — that's for configured/quoted
+goods, not rack apparel), and THREADLINE only had Django admin for that. Built a
+manager-only **Back Office** tab: Catalog & pricing (create/edit Style +
+size×colour Variants, MRP, tax override, activate/deactivate), Promotions
+(scope-aware create/edit/delete), and Categories & brands. Backend: the catalog
+viewsets became `ModelViewSet` behind `IsManagerOrReadOnly`; Style has no hard
+delete (deactivate instead — a sold variant is PROTECTed); Variant create writes
+an opening `RECEIVE` movement and auto-generates a barcode if blank, edits log a
+`CORRECTION`. `?all=1` surfaces inactive rows for the Back Office while the Sell
+grid still gets active-only. Verified: a belt + variant + category promo created
+purely through the API is immediately sellable with the promo auto-applied.
+(That test data — Northwind brand, Accessories category, "Classic Leather Belt",
+"Belt Launch 10%" — is now in the running DB; `down -v` clears it.)
+
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
 session (fresh seed + several smoke-test sales incl. INV-20260901-000x; a till
@@ -275,6 +299,11 @@ is open).
   re-skin it to apparel (variant catalog + exchange flow) so the PRD and the
   prototype tell one story, or leave it frozen as history and rely on the real
   app for demos. Appendix A of the brief lists the exact gaps.
+- **Back Office depth** — v1 covers create/edit of styles, variants, prices,
+  promotions, categories, brands (manager-only, in-app). Still open: CSV bulk
+  import of a catalog (the PRD's ERP-feed story), and a store/settings screen
+  (tax rates, return window, store info) which currently live in
+  `config/settings.py POS{}`.
 - **Order of Phase 4 vs Phase 5** — backlog+roadmap doc first, or the PM
   interview prep pack first. User picked the mini-PRD first (done); the remaining
   two are not yet ordered.
@@ -313,7 +342,8 @@ backend/                  Django 5 + DRF
   catalog/                Style / Variant / StockMovement / Promotion + pricing.py engine
   sales/                  Sale / SaleLine / Payment / ReturnTxn + services.py (checkout, process_return)
   till/                   TillSession / CashMovement + services.py (reconcile, z_report) + dashboard
-  core/                   Sequence (doc numbers), /api/health, /api/reports/summary, seed command
+  core/                   Sequence (doc numbers), permissions.py (IsManagerOrReadOnly),
+                          /api/health, /api/reports/summary, seed command
   entrypoint.sh           makemigrations -> migrate -> collectstatic -> seed -> gunicorn
   Dockerfile, requirements.txt, .dockerignore
 
@@ -324,7 +354,7 @@ frontend/                 React 18 + Vite
     pos-context.jsx       auth + till state + toast provider
     App.jsx               shell: header, tab nav, routes
     components/Modal.jsx   generic modal
-    screens/              Login, Sell, Returns, Till, Transactions, Dashboard
+    screens/              Login, Sell, Returns, Till, Transactions, Dashboard, BackOffice
   vite.config.js          dev-server /api proxy -> localhost:8001
   nginx.conf              SPA fallback + proxy /api and /admin to backend:8000
   Dockerfile              node build -> nginx:alpine
