@@ -228,9 +228,17 @@ clears, and only an exact full-barcode hit auto-adds to the cart (partial hits
 list for the user to pick). Backend rebuilt + verified with curl across
 barcode/name/colour/size searches. Committed and pushed.
 
+Also this session: **Returns screen UX** (`a625cfc`). The user reported the
+condition/reason dropdowns and the Process button as "not working". They are
+gated on `return qty > 0` (selects `disabled={!r.qty}`) and `canProcess`, which
+was correct but unexplained. Changed the return-qty field to a −/+ stepper,
+added a hint under the table, and added a "why disabled" line next to the
+Process button. No backend change — the return/exchange logic itself works.
+
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
-session (fresh seed + a couple of smoke-test sales; a till may be open).
+session (fresh seed + several smoke-test sales incl. INV-20260901-000x; a till
+is open).
 
 ---
 
