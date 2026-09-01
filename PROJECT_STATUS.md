@@ -228,12 +228,14 @@ clears, and only an exact full-barcode hit auto-adds to the cart (partial hits
 list for the user to pick). Backend rebuilt + verified with curl across
 barcode/name/colour/size searches. Committed and pushed.
 
-Also this session: **Returns screen UX** (`a625cfc`). The user reported the
-condition/reason dropdowns and the Process button as "not working". They are
-gated on `return qty > 0` (selects `disabled={!r.qty}`) and `canProcess`, which
-was correct but unexplained. Changed the return-qty field to a −/+ stepper,
-added a hint under the table, and added a "why disabled" line next to the
-Process button. No backend change — the return/exchange logic itself works.
+Also this session: **Returns screen UX**, two passes. First (`a625cfc`) added a
+−/+ stepper, a hint, and a "why is Process disabled" line — but the user still
+read the greyed condition/reason dropdowns as broken. Second pass (`3b11b08`)
+removed the gate: each line now has a **checkbox** (tick = select the whole
+returnable qty), the condition/reason selects are always enabled (disabled only
+when the line is already fully returned, which is now dimmed + labelled), and
+changing a dropdown auto-selects the line. The −/+ stepper stays for partial
+quantities. No backend change — the return/exchange logic itself works.
 
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
