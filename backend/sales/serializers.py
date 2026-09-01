@@ -42,6 +42,7 @@ class SaleListSerializer(serializers.ModelSerializer):
     tender = serializers.SerializerMethodField()
     units = serializers.SerializerMethodField()
     returned_units = serializers.SerializerMethodField()
+    tax_rates = serializers.SerializerMethodField()
     cashier_name = serializers.CharField(source="cashier.username", read_only=True)
 
     class Meta:
@@ -49,7 +50,7 @@ class SaleListSerializer(serializers.ModelSerializer):
         fields = [
             "number", "status", "created_at", "cashier_name", "units",
             "subtotal_paise", "discount_paise", "tax_paise", "total_paise",
-            "tender", "returned_units", "is_exchange_replacement",
+            "tender", "returned_units", "tax_rates", "is_exchange_replacement",
         ]
 
     def get_tender(self, obj):
@@ -61,6 +62,9 @@ class SaleListSerializer(serializers.ModelSerializer):
 
     def get_returned_units(self, obj):
         return sum(l.returned_qty for l in obj.lines.all())
+
+    def get_tax_rates(self, obj):
+        return sorted({l.tax_rate for l in obj.lines.all()})
 
 
 class ReturnListSerializer(serializers.ModelSerializer):
