@@ -6,6 +6,7 @@ import Sell from "./screens/Sell.jsx";
 import Returns from "./screens/Returns.jsx";
 import Till from "./screens/Till.jsx";
 import Dashboard from "./screens/Dashboard.jsx";
+import Transactions from "./screens/Transactions.jsx";
 
 export default function App() {
   const { user, ready, till, logout } = usePos();
@@ -38,6 +39,7 @@ export default function App() {
         <NavLink to="/sell">Sell</NavLink>
         <NavLink to="/returns">Returns &amp; Exchange</NavLink>
         <NavLink to="/till">Till / Cash</NavLink>
+        <NavLink to="/transactions">Transactions</NavLink>
         <NavLink to="/dashboard">Dashboard</NavLink>
       </nav>
 
@@ -46,6 +48,7 @@ export default function App() {
           <Route path="/sell" element={<Sell />} />
           <Route path="/returns" element={<Returns />} />
           <Route path="/till" element={<Till />} />
+          <Route path="/transactions" element={<Transactions />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/sell" replace />} />
         </Routes>

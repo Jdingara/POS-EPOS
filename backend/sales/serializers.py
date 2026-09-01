@@ -40,14 +40,46 @@ class SaleSerializer(serializers.ModelSerializer):
 
 class SaleListSerializer(serializers.ModelSerializer):
     tender = serializers.SerializerMethodField()
+    units = serializers.SerializerMethodField()
+    returned_units = serializers.SerializerMethodField()
+    cashier_name = serializers.CharField(source="cashier.username", read_only=True)
 
     class Meta:
         model = Sale
-        fields = ["number", "status", "total_paise", "tender", "created_at"]
+        fields = [
+            "number", "status", "created_at", "cashier_name", "units",
+            "subtotal_paise", "discount_paise", "tax_paise", "total_paise",
+            "tender", "returned_units", "is_exchange_replacement",
+        ]
 
     def get_tender(self, obj):
         p = obj.payments.exclude(method=TenderMethod.STORE_CREDIT).first()
         return p.method if p else "STORE_CREDIT"
+
+    def get_units(self, obj):
+        return sum(l.qty for l in obj.lines.all())
+
+    def get_returned_units(self, obj):
+        return sum(l.returned_qty for l in obj.lines.all())
+
+
+class ReturnListSerializer(serializers.ModelSerializer):
+    original_number = serializers.CharField(source="original_sale.number", read_only=True)
+    exchange_number = serializers.CharField(source="exchange_sale.number", read_only=True, default=None)
+    cashier_name = serializers.CharField(source="cashier.username", read_only=True)
+    approved_by_name = serializers.CharField(source="approved_by.username", read_only=True, default=None)
+    units = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReturnTxn
+        fields = [
+            "number", "kind", "created_at", "original_number", "exchange_number",
+            "cashier_name", "approved_by_name", "units", "returned_value_paise",
+            "refund_method", "refund_amount_paise", "collect_amount_paise",
+        ]
+
+    def get_units(self, obj):
+        return sum(l.qty for l in obj.lines.all())
 
 
 class ReturnLineSerializer(serializers.ModelSerializer):

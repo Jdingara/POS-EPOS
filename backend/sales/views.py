@@ -12,16 +12,22 @@ from accounts.models import User
 from catalog.pricing import quote as build_quote
 from till.services import current_session
 
-from .models import Sale
+from .models import ReturnTxn, Sale
 from .serializers import (
     CheckoutSerializer,
     QuoteRequestSerializer,
+    ReturnListSerializer,
     ReturnRequestSerializer,
     ReturnTxnSerializer,
     SaleListSerializer,
     SaleSerializer,
 )
 from .services import checkout, process_return
+
+
+def _date_range(params):
+    """(from, to) ISO date strings from query params, or (None, None)."""
+    return params.get("from") or None, params.get("to") or None
 
 
 def quote_to_dict(q) -> dict:
@@ -61,6 +67,24 @@ class CheckoutView(APIView):
 
 
 class ReturnView(APIView):
+    def get(self, request):
+        """List returns / exchanges (Transactions page)."""
+        qs = (
+            ReturnTxn.objects
+            .select_related("original_sale", "exchange_sale", "cashier", "approved_by")
+            .prefetch_related("lines")
+            .order_by("-created_at")
+        )
+        d_from, d_to = _date_range(request.query_params)
+        if d_from:
+            qs = qs.filter(created_at__date__gte=d_from)
+        if d_to:
+            qs = qs.filter(created_at__date__lte=d_to)
+        kind = request.query_params.get("kind")
+        if kind:
+            qs = qs.filter(kind=kind.upper())
+        return Response(ReturnListSerializer(qs[:300], many=True).data)
+
     def post(self, request):
         s = ReturnRequestSerializer(data=request.data)
         s.is_valid(raise_exception=True)
@@ -91,14 +115,26 @@ class SaleViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         qs = Sale.objects.prefetch_related("lines", "payments").order_by("-created_at")
-        search = self.request.query_params.get("search")
-        if search:
-            qs = qs.filter(Q(number__icontains=search))
+        p = self.request.query_params
+        if p.get("search"):
+            qs = qs.filter(Q(number__icontains=p["search"]))
+        d_from, d_to = _date_range(p)
+        if d_from:
+            qs = qs.filter(created_at__date__gte=d_from)
+        if d_to:
+            qs = qs.filter(created_at__date__lte=d_to)
+        if p.get("status"):
+            qs = qs.filter(status=p["status"])
+        if p.get("kind") == "sale":          # exclude the replacement side of exchanges
+            qs = qs.filter(is_exchange_replacement=False)
         return qs
 
     def get_serializer_class(self):
         return SaleListSerializer if self.action == "list" else SaleSerializer
 
     def list(self, request, *args, **kwargs):
-        qs = self.get_queryset()[:15]
+        # a plain ?search= (used by the Returns lookup) keeps the old short list;
+        # the Transactions page passes a date range and wants more rows
+        limit = 15 if request.query_params.get("search") else 300
+        qs = self.get_queryset()[:limit]
         return Response(SaleListSerializer(qs, many=True).data)
