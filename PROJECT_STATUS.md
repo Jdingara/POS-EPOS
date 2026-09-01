@@ -237,6 +237,16 @@ when the line is already fully returned, which is now dimmed + labelled), and
 changing a dropdown auto-selects the line. The −/+ stepper stays for partial
 quantities. No backend change — the return/exchange logic itself works.
 
+Also this session: **Transactions page** (`0c04915`). The user had no way to
+browse past sales/returns — only the today-only Dashboard and a few "recent"
+chips. Added a 5th tab. Backend: `GET /api/reports/summary?from=&to=` (aggregate
+totals + tender mix), `GET /api/sales/returns` now also lists (was POST-only),
+`GET /api/sales/sales` gained `from/to/status/kind` filters and returns up to
+300 rows (still 15 when `?search=` is present, which the Returns lookup relies
+on). Frontend: Today / 7d / 30d / All range picker, a summary card strip, and
+Sales + Returns tables; clicking a sale opens its receipt (reuses
+`Sell.jsx`'s exported `ReceiptModal`). Verified all three endpoints with curl.
+
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
 session (fresh seed + several smoke-test sales incl. INV-20260901-000x; a till
@@ -291,7 +301,7 @@ backend/                  Django 5 + DRF
   catalog/                Style / Variant / StockMovement / Promotion + pricing.py engine
   sales/                  Sale / SaleLine / Payment / ReturnTxn + services.py (checkout, process_return)
   till/                   TillSession / CashMovement + services.py (reconcile, z_report) + dashboard
-  core/                   Sequence (doc numbers), /api/health, seed management command
+  core/                   Sequence (doc numbers), /api/health, /api/reports/summary, seed command
   entrypoint.sh           makemigrations -> migrate -> collectstatic -> seed -> gunicorn
   Dockerfile, requirements.txt, .dockerignore
 
@@ -302,7 +312,7 @@ frontend/                 React 18 + Vite
     pos-context.jsx       auth + till state + toast provider
     App.jsx               shell: header, tab nav, routes
     components/Modal.jsx   generic modal
-    screens/              Login, Sell, Returns, Till, Dashboard
+    screens/              Login, Sell, Returns, Till, Transactions, Dashboard
   vite.config.js          dev-server /api proxy -> localhost:8001
   nginx.conf              SPA fallback + proxy /api and /admin to backend:8000
   Dockerfile              node build -> nginx:alpine
