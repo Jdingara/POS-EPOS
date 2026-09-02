@@ -296,6 +296,17 @@ first-three-slots case). `/api/till/dashboard` was expanded to feed it
 commit). **Not visually verified this session** — the browser MCP was down, so
 API + bundle deploy are confirmed but the rendered SVG layout needs an eyeball.
 
+**BPMN process model** (`docs/04-bpmn-process.html`). User asked for the completed
+software's end-to-end process "as BPMN, in HTML, not an artifact". Built a
+standalone offline HTML page — pools/lanes, user vs system tasks, exclusive
+gateways, start/end events, message flows to the PSP — rendered by a small
+hand-rolled data-driven SVG BPMN renderer (no bpmn-js / no CDN, so it can't be
+rejected at import and works with no network). Four process diagrams: Catalog
+setup (Back Office), Sale, Return & Exchange, End-of-day. It mirrors
+`docs/01-workflow.md`. Verified headlessly: script parses, no NaN/undefined,
+every shape stays inside its viewBox — but the browser was down so exact label
+spacing / one intentional flow crossing in diagram 3 still want an eyeball.
+
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
 session (fresh seed + several smoke-test sales incl. INV-20260901-000x, plus the
@@ -345,6 +356,7 @@ docs/
   01-workflow.md          Phase 1 - Mermaid flowchart of the 3 core flows
   02-product-brief.md     Phase 2 - mini-PRD (apparel); the interview centrepiece
   03-architecture.md      Phase 3 - how the app is built (learning walkthrough)
+  04-bpmn-process.html    BPMN 2.0 process model (4 diagrams) - standalone offline HTML
 
 mockup/
   index.html              Phase 2 prototype - FROZEN, grocery-flavour, pre-pivot
