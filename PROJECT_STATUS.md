@@ -306,6 +306,14 @@ setup (Back Office), Sale, Return & Exchange, End-of-day. It mirrors
 `docs/01-workflow.md`. Verified headlessly: script parses, no NaN/undefined,
 every shape stays inside its viewBox — but the browser was down so exact label
 spacing / one intentional flow crossing in diagram 3 still want an eyeball.
+Follow-up (`d008fb6`) per user feedback: the page was capped at 1120px with big
+side margins and each diagram needed horizontal scrolling — bad for presenting.
+Now the page uses the full width (prose capped at 960px), and each diagram SVG
+is `width:100%` + `preserveAspectRatio` so it scales to fit the card with no
+scrollbar. Also: user wanted an in-editor HTML preview like Markdown's
+`Ctrl+Shift+V` — installed the **Live Preview** VS Code extension
+(`ms-vscode.live-server`); "Live Preview: Show Preview (Internal Browser)"
+renders it in a pane.
 
 **Currently running:** `docker compose ps` shows `backend` / `db` / `frontend`
 Up on 8001 / 5434 / 8091. The DB volume has persisted since the 2026-08-31
